@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>GymNote</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+  :root {
+    --gold: #F5C842;
+    --gold-dim: #C47A00;
+    --bg: #0D0D14;
+    --bg2: #13131E;
+    --bg3: #1A1A2A;
+    --border: rgba(245,200,66,0.15);
+    --text: #FFFFFF;
+    --text-dim: rgba(255,255,255,0.45);
+    --green: #4ADE80;
+    --red: #F87171;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; }
+
+  .nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(13,13,20,0.97); backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 12px 0 10px; cursor: pointer; gap: 4px; }
+  .nav-item .icon { font-size: 22px; transition: transform 0.2s; }
+  .nav-item .label { font-size: 10px; font-weight: 600; letter-spacing: 0.5px; color: var(--text-dim); text-transform: uppercase; }
+  .nav-item.active .label { color: var(--gold); }
+  .nav-item.active .icon { transform: translateY(-2px); }
+
+  .screen { display: none; padding: 0 0 90px; animation: fadeIn 0.3s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .header { padding: 56px 20px 20px; background: linear-gradient(180deg, var(--bg2) 0%, transparent 100%); }
+  .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+  .greeting { font-size: 13px; color: var(--text-dim); font-weight: 500; }
+  .username { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 2px; }
+  .badge { background: linear-gradient(135deg, var(--gold), var(--gold-dim)); color: #000; font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px; letter-spacing: 1px; text-transform: uppercase; }
+
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0 20px 20px; }
+  .stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 14px 12px; text-align: center; }
+  .stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--gold); line-height: 1; }
+  .stat-label { font-size: 10px; color: var(--text-dim); font-weight: 500; margin-top: 4px; text-transform: uppercase; }
+
+  .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; padding: 0 20px 14px; display: flex; align-items: center; gap: 10px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .workout-scroll { overflow-x: auto; padding: 0 20px 20px; display: flex; gap: 14px; scrollbar-width: none; }
+  .workout-scroll::-webkit-scrollbar { display: none; }
+  .workout-card { flex-shrink: 0; width: 160px; background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
+  .workout-card:active { transform: scale(0.96); }
+  .workout-card-img { width: 100%; height: 110px; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+  .wc-gym { background: linear-gradient(135deg, #1a1a3a, #0d0d20); }
+  .wc-home { background: linear-gradient(135deg, #1a2a1a, #0d150d); }
+  .wc-outdoor { background: linear-gradient(135deg, #1a2a1a, #152515); }
+  .workout-card-body { padding: 12px; }
+  .wc-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  .wc-tag { background: rgba(245,200,66,0.1); color: var(--gold); padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 600; text-transform: uppercase; margin-right: 4px; }
+
+  .record-list { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
+  .record-item { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 14px; }
+  .record-icon { font-size: 28px; width: 44px; text-align: center; }
+  .record-info { flex: 1; }
+  .record-name { font-size: 14px; font-weight: 600; }
+  .record-date { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .record-val { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--gold); }
+
+  .chart-card { margin: 0 20px 20px; background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 20px; }
+  .chart-title { font-size: 12px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+  .chart-bars { display: flex; align-items: flex-end; gap: 8px; height: 80px; }
+  .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
+  .bar { width: 100%; border-radius: 6px 6px 0 0; background: linear-gradient(180deg, var(--gold), var(--gold-dim)); min-height: 4px; }
+  .bar-label { font-size: 9px; color: var(--text-dim); }
+
+  .plan-cards { padding: 0 20px; display: flex; flex-direction: column; gap: 14px; }
+  .plan-card { border-radius: 20px; padding: 22px; border: 1px solid var(--border); background: var(--bg2); position: relative; overflow: hidden; }
+  .plan-card.premium { background: linear-gradient(135deg, #1a1500, #130f00); border-color: rgba(245,200,66,0.4); }
+  .plan-card.premium::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+  .plan-badge { position: absolute; top: 16px; right: 16px; background: var(--gold); color: #000; font-size: 9px; font-weight: 800; padding: 4px 8px; border-radius: 8px; }
+  .plan-name { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 2px; margin-bottom: 4px; }
+  .plan-price { font-size: 13px; color: var(--text-dim); margin-bottom: 16px; }
+  .plan-price span { color: var(--gold); font-weight: 700; font-size: 20px; }
+  .plan-features { display: flex; flex-direction: column; gap: 8px; }
+  .plan-feature { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-dim); }
+  .plan-feature .check { color: var(--green); }
+  .plan-feature .cross { color: var(--red); }
+
+  .sub-btn { margin: 20px; width: calc(100% - 40px); background: linear-gradient(135deg, var(--gold), var(--gold-dim)); color: #000; border: none; border-radius: 16px; padding: 18px; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; cursor: pointer; }
+
+  .profile-header { padding: 56px 20px 24px; background: linear-gradient(180deg, var(--bg2) 0%, transparent 100%); text-align: center; }
+  .avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-dim)); display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 14px; border: 3px solid rgba(245,200,66,0.3); }
+  .profile-name { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; }
+  .profile-level { font-size: 12px; color: var(--gold); font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin-top: 4px; }
+
+  .menu-list { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
+  .menu-item { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 18px 16px; display: flex; align-items: center; gap: 14px; cursor: pointer; }
+  .menu-item:active { background: var(--bg3); }
+  .menu-item-icon { font-size: 22px; width: 36px; text-align: center; }
+  .menu-item-text { flex: 1; }
+  .menu-item-title { font-size: 15px; font-weight: 600; }
+  .menu-item-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .menu-item-arrow { color: var(--text-dim); font-size: 16px; }
+
+  .active-banner { margin: 0 20px 20px; background: linear-gradient(135deg, rgba(74,222,128,0.1), rgba(74,222,128,0.05)); border: 1px solid rgba(74,222,128,0.3); border-radius: 20px; padding: 18px; display: flex; align-items: center; gap: 14px; }
+  .active-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px var(--green); animation: pulse 2s infinite; flex-shrink: 0; }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.3); } }
+  .active-text { flex: 1; }
+  .active-title { font-size: 14px; font-weight: 700; color: var(--green); }
+  .active-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div class="screen active" id="screen-home">
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="greeting">Привіт 👋</div>
+        <div class="username" id="user-name">КОРИСТУВАЧ</div>
+      </div>
+      <div class="badge">⭐ Преміум</div>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-num">24</div><div class="stat-label">Тренувань</div></div>
+    <div class="stat-card"><div class="stat-num">7</div><div class="stat-label">Стрік 🔥</div></div>
+    <div class="stat-card"><div class="stat-num">12</div><div class="stat-label">Рекордів</div></div>
+  </div>
+  <div class="active-banner">
+    <div class="active-dot"></div>
+    <div class="active-text">
+      <div class="active-title">Бот активний</div>
+      <div class="active-sub">@gymnote1bot працює 24/7</div>
+    </div>
+  </div>
+  <div class="section-title">Програми</div>
+  <div class="workout-scroll">
+    <div class="workout-card">
+      <div class="workout-card-img wc-gym">🏋️</div>
+      <div class="workout-card-body"><div class="wc-title">Спліт 4 дні</div><div><span class="wc-tag">Зал</span><span class="wc-tag">Середній</span></div></div>
+    </div>
+    <div class="workout-card">
+      <div class="workout-card-img wc-home">🏠</div>
+      <div class="workout-card-body"><div class="wc-title">Вдома без інвентарю</div><div><span class="wc-tag">Дім</span><span class="wc-tag">Початок</span></div></div>
+    </div>
+    <div class="workout-card">
+      <div class="workout-card-img wc-outdoor">🌿</div>
+      <div class="workout-card-body"><div class="wc-title">Вулична функціонал</div><div><span class="wc-tag">Вулиця</span><span class="wc-tag">Атлет</span></div></div>
+    </div>
+    <div class="workout-card">
+      <div class="workout-card-img wc-gym">💪</div>
+      <div class="workout-card-body"><div class="wc-title">Фулбоді 3 дні</div><div><span class="wc-tag">Зал</span><span class="wc-tag">Просунутий</span></div></div>
+    </div>
+  </div>
+  <div class="section-title">Рекорди</div>
+  <div class="record-list">
+    <div class="record-item"><div class="record-icon">🏆</div><div class="record-info"><div class="record-name">Жим лежачи</div><div class="record-date">Вчора · Особистий рекорд!</div></div><div class="record-val">100кг</div></div>
+    <div class="record-item"><div class="record-icon">🦵</div><div class="record-info"><div class="record-name">Присідання</div><div class="record-date">2 дні тому</div></div><div class="record-val">120кг</div></div>
+  </div>
+</div>
+
+<div class="screen" id="screen-progress">
+  <div class="header"><div class="username">📈 ПРОГРЕС</div><div style="font-size:13px;color:var(--text-dim);margin-top:4px">Твої результати за тиждень</div></div>
+  <div class="chart-card">
+    <div class="chart-title">Тренувань за тиждень</div>
+    <div class="chart-bars">
+      <div class="bar-wrap"><div class="bar" style="height:40%"></div><div class="bar-label">Пн</div></div>
+      <div class="bar-wrap"><div class="bar" style="height:80%"></div><div class="bar-label">Вт</div></div>
+      <div class="bar-wrap"><div class="bar" style="height:30%"></div><div class="bar-label">Ср</div></div><div class="bar-wrap"><div class="bar" style="height:100%"></div><div class="bar-label">Чт</div></div>
+      <div class="bar-wrap"><div class="bar" style="height:60%"></div><div class="bar-label">Пт</div></div>
+      <div class="bar-wrap"><div class="bar" style="height:0%"></div><div class="bar-label">Сб</div></div>
+      <div class="bar-wrap"><div class="bar" style="height:0%"></div><div class="bar-label">Нд</div></div>
+    </div>
+  </div>
+  <div class="section-title">Особисті рекорди</div>
+  <div class="record-list">
+    <div class="record-item"><div class="record-icon">🏆</div><div class="record-info"><div class="record-name">Жим лежачи</div><div class="record-date">08.06.2026</div></div><div class="record-val">100кг</div></div>
+    <div class="record-item"><div class="record-icon">🦵</div><div class="record-info"><div class="record-name">Присідання</div><div class="record-date">06.06.2026</div></div><div class="record-val">120кг</div></div>
+    <div class="record-item"><div class="record-icon">💪</div><div class="record-info"><div class="record-name">Підтягування</div><div class="record-date">05.06.2026</div></div><div class="record-val">15 разів</div></div>
+    <div class="record-item"><div class="record-icon">🔥</div><div class="record-info"><div class="record-name">Станова тяга</div><div class="record-date">04.06.2026</div></div><div class="record-val">140кг</div></div>
+  </div>
+</div>
+
+<div class="screen" id="screen-sub">
+  <div class="header"><div class="username">💎 ПІДПИСКА</div><div style="font-size:13px;color:var(--text-dim);margin-top:4px">Обери свій план</div></div>
+  <div class="plan-cards">
+    <div class="plan-card">
+      <div class="plan-name">FREE</div>
+      <div class="plan-price"><span>0₴</span> / назавжди</div>
+      <div class="plan-features">
+        <div class="plan-feature"><span class="check">✓</span> 3 програми тренувань</div>
+        <div class="plan-feature"><span class="check">✓</span> Базовий конструктор</div>
+        <div class="plan-feature"><span class="cross">✗</span> Відстеження прогресу</div>
+        <div class="plan-feature"><span class="cross">✗</span> Особисті рекорди</div>
+      </div>
+    </div>
+    <div class="plan-card premium">
+      <div class="plan-badge">🔥 ПОПУЛЯРНИЙ</div>
+      <div class="plan-name" style="color:var(--gold)">ПРЕМІУМ</div>
+      <div class="plan-price"><span>299₴</span> / місяць</div>
+      <div class="plan-features">
+        <div class="plan-feature"><span class="check">✓</span> 108 програм тренувань</div>
+        <div class="plan-feature"><span class="check">✓</span> Повний прогрес і рекорди</div>
+        <div class="plan-feature"><span class="check">✓</span> Реферальна система</div>
+        <div class="plan-feature"><span class="check">✓</span> Пріоритетна підтримка</div>
+      </div>
+    </div>
+  </div>
+  <button class="sub-btn" onclick="Telegram.WebApp.sendData('open_subscription')">Активувати Преміум 🚀</button>
+</div>
+
+<div class="screen" id="screen-profile">
+  <div class="profile-header">
+    <div class="avatar">💪</div>
+    <div class="profile-name" id="profile-name">КОРИСТУВАЧ</div>
+    <div class="profile-level">⭐ Преміум · Середній рівень</div>
+  </div>
+  <div class="menu-list">
+    <div class="menu-item"><div class="menu-item-icon">📊</div><div class="menu-item-text"><div class="menu-item-title">Моя статистика</div><div class="menu-item-sub">24 тренування · 7 рекордів</div></div><div class="menu-item-arrow">›</div></div>
+    <div class="menu-item"><div class="menu-item-icon">🎁</div><div class="menu-item-text"><div class="menu-item-title">Реферальна програма</div><div class="menu-item-sub">Запроси друга — отримай 7 днів</div></div><div class="menu-item-arrow">›</div></div>
+    <div class="menu-item"><div class="menu-item-icon">⚙️</div><div class="menu-item-text"><div class="menu-item-title">Налаштування</div><div class="menu-item-sub">Рівень, локація, сповіщення</div></div><div class="menu-item-arrow">›</div></div><div class="menu-item"><div class="menu-item-icon">🆘</div><div class="menu-item-text"><div class="menu-item-title">Підтримка</div><div class="menu-item-sub">Написати тренеру</div></div><div class="menu-item-arrow">›</div></div>
+    <div class="menu-item"><div class="menu-item-icon">📢</div><div class="menu-item-text"><div class="menu-item-title">Наш канал</div><div class="menu-item-sub">Новини та поради</div></div><div class="menu-item-arrow">›</div></div>
+  </div>
+</div>
+
+<nav class="nav">
+  <div class="nav-item active" onclick="showScreen('home', this)"><div class="icon">🏠</div><div class="label">Головна</div></div>
+  <div class="nav-item" onclick="showScreen('progress', this)"><div class="icon">📈</div><div class="label">Прогрес</div></div>
+  <div class="nav-item" onclick="showScreen('sub', this)"><div class="icon">💎</div><div class="label">Підписка</div></div>
+  <div class="nav-item" onclick="showScreen('profile', this)"><div class="icon">👤</div><div class="label">Профіль</div></div>
+</nav>
+
+<script>
+  // Telegram WebApp init
+  const tg = window.Telegram.WebApp;
+  tg.ready();
+  tg.expand();
+
+  // Get user name from Telegram
+  const user = tg.initDataUnsafe?.user;
+  if (user) {
+    const name = user.first_name || 'Користувач';
+    document.getElementById('user-name').textContent = name.toUpperCase();
+    document.getElementById('profile-name').textContent = name.toUpperCase();
+  }
+
+  function showScreen(name, el) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    el.classList.add('active');
+  }
+</script>
+</body>
+</html>
