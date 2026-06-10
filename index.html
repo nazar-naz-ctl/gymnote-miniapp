@@ -1203,7 +1203,7 @@ async function loadUserData() {
     const uid = tgUser?.id;
     if (!uid) return;
 
-    const headers = { 'X-Telegram-User-Id': uid };
+    
 
     const [user, records, journal] = await Promise.all([
       fetch(`${API}/user`, { headers }).then(r => r.json()),
