@@ -1267,7 +1267,7 @@ const tgUser = tg?.initDataUnsafe?.user;
 async function loadUserData() {
   try {
     const uid = tgUser?.id;
-    const headers = { "X-Init-Data": tg.initData };
+    const headers = { "X-Init-Data": tg.initData, "X-Telegram-User-Id": String(uid) };
     const [user, records, journal] = await Promise.all([
       fetch(API+"/user", {headers}).then(r=>r.json()),
       fetch(API+"/records", {headers}).then(r=>r.json()),
