@@ -2,256 +2,1187 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>GymNote</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GymNote 2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap');
-  :root {
-    --gold: #F5C842;
-    --gold-dim: #C47A00;
-    --bg: #0D0D14;
-    --bg2: #13131E;
-    --bg3: #1A1A2A;
-    --border: rgba(245,200,66,0.15);
-    --text: #FFFFFF;
-    --text-dim: rgba(255,255,255,0.45);
-    --green: #4ADE80;
-    --red: #F87171;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; }
+:root{
+  --gold:#F5C842;--gold2:#C47A00;--bg:#0D0D14;--bg2:#13131E;--bg3:#1A1A2A;
+  --border:rgba(245,200,66,0.15);--text:#FFF;--dim:rgba(255,255,255,0.45);
+  --green:#4ADE80;--blue:#60A5FA;--purple:#A78BFA;--pink:#F472B6;
+  --red:#EF4444;--orange:#FB923C;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0a0a12;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:'DM Sans',sans-serif;padding:20px;}
+.phone{width:390px;height:810px;background:var(--bg);border-radius:48px;overflow:hidden;position:relative;
+  box-shadow:0 60px 140px rgba(0,0,0,0.95),0 0 0 1px rgba(255,255,255,0.06),inset 0 0 0 1px rgba(255,255,255,0.03);}
+/* Status bar */
+.sb{height:44px;background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:0 28px;z-index:50;position:relative;}
+.sb-time{font-size:15px;font-weight:700;letter-spacing:.3px;}
+.sb-icons{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim);}
+/* Screens */
+.scr{position:absolute;top:44px;left:0;right:0;bottom:72px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;display:none;}
+.scr::-webkit-scrollbar{display:none;}
+.scr.active{display:block;animation:fi .22s ease;}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+/* Nav */
+.nav{position:absolute;bottom:0;left:0;right:0;height:72px;background:rgba(10,10,18,.98);
+  backdrop-filter:blur(24px);border-top:1px solid var(--border);display:flex;z-index:100;}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:4px;padding-bottom:8px;transition:opacity .2s;}
+.ni .ic{font-size:21px;transition:transform .2s;}
+.ni .lb{font-size:9px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;transition:color .2s;}
+.ni.active .lb{color:var(--gold);}
+.ni.active .ic{transform:translateY(-2px);}
+/* Reusable */
+.ph{padding:16px 20px 12px;background:linear-gradient(180deg,var(--bg2) 0%,transparent 100%);}
+.pt{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;}
+.ps{font-size:12px;color:var(--dim);margin-top:2px;}
+.sh{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;padding:0 20px 10px;display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.7);}
+.sh::after{content:'';flex:1;height:1px;background:var(--border);}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;}
+.gbtn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:14px;padding:15px;width:100%;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;cursor:pointer;transition:opacity .15s;}
+.gbtn:active{opacity:.85;}
+.tag{background:rgba(245,200,66,.12);color:var(--gold);padding:2px 7px;border-radius:5px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;}
+.cb{display:inline-flex;align-items:center;gap:5px;background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.25);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:700;color:var(--gold);}
+.sc{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:11px 8px;text-align:center;}
+.sn{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--gold);line-height:1;}
+.sl{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;}
+.back{display:flex;align-items:center;gap:8px;padding:14px 20px 4px;cursor:pointer;color:var(--gold);font-size:13px;font-weight:600;}
+.tgl{width:42px;height:22px;background:rgba(255,255,255,.1);border-radius:11px;position:relative;cursor:pointer;transition:background .3s;flex-shrink:0;}
+.tgl.on{background:var(--green);}
+.tgl-k{position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .3s;box-shadow:0 1px 4px rgba(0,0,0,.4);}
+.tgl.on .tgl-k{transform:translateX(20px);}
+.input-field{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;outline:none;font-family:'DM Sans',sans-serif;transition:border-color .2s;}
+.input-field:focus{border-color:rgba(245,200,66,.5);}
 
-  .nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(13,13,20,0.97); backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
-  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 12px 0 10px; cursor: pointer; gap: 4px; }
-  .nav-item .icon { font-size: 22px; transition: transform 0.2s; }
-  .nav-item .label { font-size: 10px; font-weight: 600; letter-spacing: 0.5px; color: var(--text-dim); text-transform: uppercase; }
-  .nav-item.active .label { color: var(--gold); }
-  .nav-item.active .icon { transform: translateY(-2px); }
+/* ── HOME ── */
+.xpc{margin:0 20px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px;}
+.xpb{height:7px;background:rgba(255,255,255,.07);border-radius:8px;overflow:hidden;margin-top:9px;}
+.xpf{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:8px;transition:width .8s ease;}
+.mission-card{margin:0 20px 8px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;}
+.mission-card.done{opacity:.5;}
+.mc-icon{font-size:22px;width:36px;text-align:center;}
+.mc-info{flex:1;}
+.mc-title{font-size:13px;font-weight:600;}
+.mc-prog{font-size:10px;color:var(--dim);margin-top:2px;}
+.mc-xp{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold);}
+.mc-check{font-size:18px;color:var(--green);}
+.mpb{height:4px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-top:5px;}
+.mpf{height:100%;background:var(--gold);border-radius:4px;}
+.ri{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:13px;display:flex;align-items:center;gap:11px;}
+.ri-ic{font-size:22px;width:34px;text-align:center;}
+.ri-in{flex:1;}
+.ri-n{font-size:13px;font-weight:600;}
+.ri-s{font-size:10px;color:var(--dim);margin-top:2px;}
+.ri-v{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);}
+/* Streak fire animation */
+.streak-badge{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,rgba(239,68,68,.2),rgba(251,146,60,.15));border:1px solid rgba(239,68,68,.35);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:700;color:#FF6B35;}
+.streak-badge .fire{display:inline-block;animation:fflame 1.2s ease-in-out infinite alternate;}
+@keyframes fflame{from{transform:scale(1) rotate(-3deg)}to{transform:scale(1.15) rotate(3deg)}}
 
-  .screen { display: none; padding: 0 0 90px; animation: fadeIn 0.3s ease; }
-  .screen.active { display: block; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+/* ── RANKING ── */
+.season-banner{margin:0 20px 14px;background:linear-gradient(135deg,#1a0f2e,#0d0a1a);border:1px solid rgba(167,139,250,.3);border-radius:18px;padding:16px;position:relative;overflow:hidden;}
+.season-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 80% 20%,rgba(167,139,250,.18),transparent 60%);}
+.season-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--purple);position:relative;}
+.season-sub{font-size:11px;color:rgba(167,139,250,.7);margin-top:3px;position:relative;}
+.season-timer{font-family:'Bebas Neue',sans-serif;font-size:30px;color:#fff;margin-top:8px;position:relative;letter-spacing:3px;}
+.season-prog{height:6px;background:rgba(167,139,250,.15);border-radius:8px;overflow:hidden;margin-top:10px;position:relative;}
+.season-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--pink));border-radius:8px;width:42%;}
+.rank-podium{display:flex;align-items:flex-end;justify-content:center;gap:8px;padding:0 20px 16px;}
+.podium-item{flex:1;text-align:center;}
+.podium-avatar{width:46px;height:46px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden;}
+.podium-name{font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.podium-xp{font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--gold);}
+.podium-bar{margin:0 auto;border-radius:6px 6px 0 0;}
+.rank-list{padding:0 20px 20px;display:flex;flex-direction:column;gap:7px;}
+.rl{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:13px;display:flex;align-items:center;gap:11px;cursor:pointer;transition:border-color .2s;}
+.rl:hover{border-color:rgba(245,200,66,.3);}
+.rl.me{border-color:rgba(245,200,66,.45);background:rgba(245,200,66,.04);}
+.rp{font-family:'Bebas Neue',sans-serif;font-size:20px;width:26px;text-align:center;}
+.rav{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden;}
+.rav img{width:100%;height:100%;object-fit:cover;}
+.ri2{flex:1;}
+.rn{font-size:13px;font-weight:600;}
+.rlv{font-size:10px;color:var(--dim);margin-top:2px;}
+.rxp{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);}
+.rank-filter{display:flex;gap:7px;padding:0 20px 12px;}
+.rfbtn{padding:5px 11px;border-radius:20px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--dim);background:transparent;transition:all .2s;}
+.rfbtn.active{background:rgba(245,200,66,.15);color:var(--gold);border-color:rgba(245,200,66,.4);}
 
-  .header { padding: 56px 20px 20px; background: linear-gradient(180deg, var(--bg2) 0%, transparent 100%); }
-  .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
-  .greeting { font-size: 13px; color: var(--text-dim); font-weight: 500; }
-  .username { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 2px; }
-  .badge { background: linear-gradient(135deg, var(--gold), var(--gold-dim)); color: #000; font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px; letter-spacing: 1px; text-transform: uppercase; }
+/* ── ACHIEVEMENTS ── */
+.ach-head{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 20px 14px;}
+.ach-hs{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:13px;text-align:center;}
+.ahn{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--gold);}
+.ahl{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;}
+.agrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 20px 14px;}
+.ac{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:13px;text-align:center;transition:border-color .2s;}
+.ac.unlocked{border-color:rgba(74,222,128,.3);}
+.ac.locked{opacity:.45;}
+.ai{font-size:28px;margin-bottom:7px;}
+.an{font-size:12px;font-weight:700;margin-bottom:3px;}
+.ad{font-size:10px;color:var(--dim);}
+.apb{height:3px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin-top:7px;}
+.apf{height:100%;background:var(--gold);border-radius:3px;}
+.streak-row{display:flex;gap:8px;padding:0 20px 14px;overflow-x:auto;scrollbar-width:none;}
+.streak-row::-webkit-scrollbar{display:none;}
+.stk{flex-shrink:0;width:70px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:10px 6px;text-align:center;}
+.stk.earned{border-color:rgba(245,200,66,.45);background:rgba(245,200,66,.06);}
+.stk.next{border-color:rgba(96,165,250,.4);background:rgba(96,165,250,.06);}
+.stk-ic{font-size:22px;margin-bottom:5px;}
+.stk-d{font-size:9px;font-weight:700;color:var(--dim);}
+.stk-r{font-size:9px;color:var(--gold);margin-top:3px;}
 
-  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0 20px 20px; }
-  .stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 14px 12px; text-align: center; }
-  .stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--gold); line-height: 1; }
-  .stat-label { font-size: 10px; color: var(--text-dim); font-weight: 500; margin-top: 4px; text-transform: uppercase; }
+/* ── PROFILE ── */
+.pav-wrap{position:relative;width:80px;height:80px;margin:0 auto 12px;cursor:pointer;}
+.pav{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:36px;border:3px solid rgba(245,200,66,.3);overflow:hidden;}
+.pav img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.pav-edit{position:absolute;bottom:0;right:0;width:24px;height:24px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;border:2px solid var(--bg);}
+.compare-wrap{padding:0 20px 16px;}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.cmp-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.cmp-img{height:110px;display:flex;align-items:center;justify-content:center;font-size:44px;background:var(--bg3);}
+.cmp-img img{width:100%;height:100%;object-fit:cover;}
+.cmp-lbl{padding:8px 10px;font-size:11px;font-weight:600;color:var(--dim);}
+.cmp-diff{display:flex;gap:6px;padding:0 10px 10px;flex-wrap:wrap;}
+.diff-tag{font-size:9px;padding:2px 6px;border-radius:5px;font-weight:700;}
+.diff-pos{background:rgba(74,222,128,.15);color:var(--green);}
+.diff-neg{background:rgba(239,68,68,.1);color:var(--red);}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;border-radius:12px;overflow:hidden;}
+.pc{aspect-ratio:1;background:var(--bg2);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;}
+.pc img{width:100%;height:100%;object-fit:cover;}
+.pc-d{position:absolute;bottom:3px;left:3px;font-size:7px;color:rgba(255,255,255,.8);background:rgba(0,0,0,.6);padding:1px 4px;border-radius:3px;}
+.pc-add{border:2px dashed rgba(245,200,66,.3);background:rgba(245,200,66,.04);flex-direction:column;gap:3px;}
 
-  .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; padding: 0 20px 14px; display: flex; align-items: center; gap: 10px; }
-  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+/* ── SHOP ── */
+.shop-tabs{display:flex;gap:7px;padding:0 20px 14px;overflow-x:auto;scrollbar-width:none;}
+.shop-tabs::-webkit-scrollbar{display:none;}
+.stab{flex-shrink:0;padding:6px 13px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--dim);background:transparent;transition:all .2s;}
+.stab.active{background:var(--gold);color:#000;border-color:var(--gold);}
+.shop-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 20px 20px;}
+.shopcard{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color .2s;}
+.shopcard:hover{border-color:rgba(245,200,66,.3);}
+.shopcard.owned{border-color:rgba(74,222,128,.35);}
+.sc-prev{height:82px;display:flex;align-items:center;justify-content:center;font-size:38px;}
+.sc-info{padding:10px;}
+.sc-name{font-size:12px;font-weight:700;margin-bottom:5px;}
+.sc-price{display:flex;align-items:center;justify-content:space-between;}
+.sc-cost{font-size:12px;color:var(--gold);font-weight:700;}
+.sc-own{font-size:10px;color:var(--green);font-weight:600;}
 
-  .workout-scroll { overflow-x: auto; padding: 0 20px 20px; display: flex; gap: 14px; scrollbar-width: none; }
-  .workout-scroll::-webkit-scrollbar { display: none; }
-  .workout-card { flex-shrink: 0; width: 160px; background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
-  .workout-card:active { transform: scale(0.96); }
-  .workout-card-img { width: 100%; height: 110px; display: flex; align-items: center; justify-content: center; font-size: 48px; }
-  .wc-gym { background: linear-gradient(135deg, #1a1a3a, #0d0d20); }
-  .wc-home { background: linear-gradient(135deg, #1a2a1a, #0d150d); }
-  .wc-outdoor { background: linear-gradient(135deg, #1a2a1a, #152515); }
-  .workout-card-body { padding: 12px; }
-  .wc-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
-  .wc-tag { background: rgba(245,200,66,0.1); color: var(--gold); padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 600; text-transform: uppercase; margin-right: 4px; }
+/* ── TITLES ── */
+.title-list{padding:0 20px 14px;display:flex;flex-direction:column;gap:8px;}
+.tc{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:13px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .2s;}
+.tc:hover{border-color:rgba(245,200,66,.3);}
+.tc.active-t{border-color:rgba(245,200,66,.45);background:rgba(245,200,66,.05);}
+.tc-icon{font-size:24px;width:36px;text-align:center;}
+.tc-info{flex:1;}
+.tc-name{font-size:13px;font-weight:700;}
+.tc-desc{font-size:10px;color:var(--dim);margin-top:2px;}
+.tc-badge{font-size:9px;padding:2px 8px;border-radius:5px;font-weight:700;}
+.tc-eq{background:rgba(245,200,66,.15);color:var(--gold);}
+.tc-buy{background:rgba(96,165,250,.15);color:var(--blue);}
+.tc-lock{background:rgba(255,255,255,.08);color:var(--dim);}
 
-  .record-list { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
-  .record-item { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 14px; }
-  .record-icon { font-size: 28px; width: 44px; text-align: center; }
-  .record-info { flex: 1; }
-  .record-name { font-size: 14px; font-weight: 600; }
-  .record-date { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
-  .record-val { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--gold); }
+/* ── WORKOUT ── */
+.workout-tabs{display:flex;gap:7px;padding:0 20px 14px;overflow-x:auto;scrollbar-width:none;}
+.workout-tabs::-webkit-scrollbar{display:none;}
 
-  .chart-card { margin: 0 20px 20px; background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 20px; }
-  .chart-title { font-size: 12px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
-  .chart-bars { display: flex; align-items: flex-end; gap: 8px; height: 80px; }
-  .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
-  .bar { width: 100%; border-radius: 6px 6px 0 0; background: linear-gradient(180deg, var(--gold), var(--gold-dim)); min-height: 4px; }
-  .bar-label { font-size: 9px; color: var(--text-dim); }
+/* ── PROGRAM DETAIL / ACTIVE WORKOUT ── */
+.ex-active-card{background:var(--bg2);border:2px solid rgba(245,200,66,.4);border-radius:16px;padding:16px;margin-bottom:8px;}
+.set-row{display:flex;align-items:center;gap:8px;margin-top:8px;}
+.set-num{width:26px;height:26px;background:rgba(245,200,66,.15);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--gold);flex-shrink:0;}
+.set-input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 8px;color:#fff;font-size:13px;text-align:center;outline:none;font-family:'DM Sans',sans-serif;width:60px;}
+.set-input:focus{border-color:rgba(245,200,66,.5);}
+.set-done{width:28px;height:28px;background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.25);border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .2s;}
+.set-done.checked{background:rgba(74,222,128,.25);border-color:var(--green);}
 
-  .plan-cards { padding: 0 20px; display: flex; flex-direction: column; gap: 14px; }
-  .plan-card { border-radius: 20px; padding: 22px; border: 1px solid var(--border); background: var(--bg2); position: relative; overflow: hidden; }
-  .plan-card.premium { background: linear-gradient(135deg, #1a1500, #130f00); border-color: rgba(245,200,66,0.4); }
-  .plan-card.premium::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
-  .plan-badge { position: absolute; top: 16px; right: 16px; background: var(--gold); color: #000; font-size: 9px; font-weight: 800; padding: 4px 8px; border-radius: 8px; }
-  .plan-name { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 2px; margin-bottom: 4px; }
-  .plan-price { font-size: 13px; color: var(--text-dim); margin-bottom: 16px; }
-  .plan-price span { color: var(--gold); font-weight: 700; font-size: 20px; }
-  .plan-features { display: flex; flex-direction: column; gap: 8px; }
-  .plan-feature { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-dim); }
-  .plan-feature .check { color: var(--green); }
-  .plan-feature .cross { color: var(--red); }
+/* ── LIGHTBOX ── */
+.lbox{position:absolute;inset:0;background:rgba(0,0,0,.96);z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;animation:fi .2s ease;}
+.lbox.open{display:flex;}
+.lbox-img{max-width:100%;max-height:65%;object-fit:contain;border-radius:12px;}
+.lbox-emoji{font-size:80px;}
+.lbox-x{position:absolute;top:18px;right:22px;font-size:28px;cursor:pointer;color:var(--dim);}
+.lbox-del{margin-top:14px;background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:9px 22px;font-size:12px;font-weight:600;cursor:pointer;}
 
-  .sub-btn { margin: 20px; width: calc(100% - 40px); background: linear-gradient(135deg, var(--gold), var(--gold-dim)); color: #000; border: none; border-radius: 16px; padding: 18px; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; cursor: pointer; }
-
-  .profile-header { padding: 56px 20px 24px; background: linear-gradient(180deg, var(--bg2) 0%, transparent 100%); text-align: center; }
-  .avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-dim)); display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 14px; border: 3px solid rgba(245,200,66,0.3); }
-  .profile-name { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; }
-  .profile-level { font-size: 12px; color: var(--gold); font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin-top: 4px; }
-
-  .menu-list { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
-  .menu-item { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 18px 16px; display: flex; align-items: center; gap: 14px; cursor: pointer; }
-  .menu-item:active { background: var(--bg3); }
-  .menu-item-icon { font-size: 22px; width: 36px; text-align: center; }
-  .menu-item-text { flex: 1; }
-  .menu-item-title { font-size: 15px; font-weight: 600; }
-  .menu-item-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
-  .menu-item-arrow { color: var(--text-dim); font-size: 16px; }
-
-  .active-banner { margin: 0 20px 20px; background: linear-gradient(135deg, rgba(74,222,128,0.1), rgba(74,222,128,0.05)); border: 1px solid rgba(74,222,128,0.3); border-radius: 20px; padding: 18px; display: flex; align-items: center; gap: 14px; }
-  .active-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px var(--green); animation: pulse 2s infinite; flex-shrink: 0; }
-  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.3); } }
-  .active-text { flex: 1; }
-  .active-title { font-size: 14px; font-weight: 700; color: var(--green); }
-  .active-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+/* ── NOTIFICATIONS ── */
+.toast{position:absolute;top:54px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid rgba(245,200,66,.4);border-radius:12px;padding:10px 18px;font-size:12px;font-weight:600;color:#fff;z-index:300;display:none;white-space:nowrap;box-shadow:0 8px 30px rgba(0,0,0,.5);}
+.toast.show{display:block;animation:toastIn .3s ease,toastOut .3s ease 1.8s forwards;}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes toastOut{from{opacity:1}to{opacity:0}}
 </style>
 </head>
 <body>
+<div class="phone">
 
-<div class="screen active" id="screen-home">
-  <div class="header">
-    <div class="header-top">
+<!-- Status Bar -->
+<div class="sb">
+  <div class="sb-time" id="sbTime">9:41</div>
+  <div class="sb-icons"><span>●●●</span><span style="margin:0 2px">WiFi</span><span>🔋</span></div>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════ HOME ═══════════════════════════════════════ -->
+<div class="scr active" id="home">
+  <div class="ph">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
       <div>
-        <div class="greeting">Привіт 👋</div>
-        <div class="username" id="user-name">КОРИСТУВАЧ</div>
+        <div style="font-size:12px;color:var(--dim)">Привіт 👋</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px" id="home-name">НАЗАР</div>
       </div>
-      <div class="badge">⭐ Преміум</div>
-    </div>
-  </div>
-  <div class="stats-row">
-    <div class="stat-card"><div class="stat-num">24</div><div class="stat-label">Тренувань</div></div>
-    <div class="stat-card"><div class="stat-num">7</div><div class="stat-label">Стрік 🔥</div></div>
-    <div class="stat-card"><div class="stat-num">12</div><div class="stat-label">Рекордів</div></div>
-  </div>
-  <div class="active-banner">
-    <div class="active-dot"></div>
-    <div class="active-text">
-      <div class="active-title">Бот активний</div>
-      <div class="active-sub">@gymnote1bot працює 24/7</div>
-    </div>
-  </div>
-  <div class="section-title">Програми</div>
-  <div class="workout-scroll">
-    <div class="workout-card">
-      <div class="workout-card-img wc-gym">🏋️</div>
-      <div class="workout-card-body"><div class="wc-title">Спліт 4 дні</div><div><span class="wc-tag">Зал</span><span class="wc-tag">Середній</span></div></div>
-    </div>
-    <div class="workout-card">
-      <div class="workout-card-img wc-home">🏠</div>
-      <div class="workout-card-body"><div class="wc-title">Вдома без інвентарю</div><div><span class="wc-tag">Дім</span><span class="wc-tag">Початок</span></div></div>
-    </div>
-    <div class="workout-card">
-      <div class="workout-card-img wc-outdoor">🌿</div>
-      <div class="workout-card-body"><div class="wc-title">Вулична функціонал</div><div><span class="wc-tag">Вулиця</span><span class="wc-tag">Атлет</span></div></div>
-    </div>
-    <div class="workout-card">
-      <div class="workout-card-img wc-gym">💪</div>
-      <div class="workout-card-body"><div class="wc-title">Фулбоді 3 дні</div><div><span class="wc-tag">Зал</span><span class="wc-tag">Просунутий</span></div></div>
-    </div>
-  </div>
-  <div class="section-title">Рекорди</div>
-  <div class="record-list">
-    <div class="record-item"><div class="record-icon">🏆</div><div class="record-info"><div class="record-name">Жим лежачи</div><div class="record-date">Вчора · Особистий рекорд!</div></div><div class="record-val">100кг</div></div>
-    <div class="record-item"><div class="record-icon">🦵</div><div class="record-info"><div class="record-name">Присідання</div><div class="record-date">2 дні тому</div></div><div class="record-val">120кг</div></div>
-  </div>
-</div>
-
-<div class="screen" id="screen-progress">
-  <div class="header"><div class="username">📈 ПРОГРЕС</div><div style="font-size:13px;color:var(--text-dim);margin-top:4px">Твої результати за тиждень</div></div>
-  <div class="chart-card">
-    <div class="chart-title">Тренувань за тиждень</div>
-    <div class="chart-bars">
-      <div class="bar-wrap"><div class="bar" style="height:40%"></div><div class="bar-label">Пн</div></div>
-      <div class="bar-wrap"><div class="bar" style="height:80%"></div><div class="bar-label">Вт</div></div>
-      <div class="bar-wrap"><div class="bar" style="height:30%"></div><div class="bar-label">Ср</div></div><div class="bar-wrap"><div class="bar" style="height:100%"></div><div class="bar-label">Чт</div></div>
-      <div class="bar-wrap"><div class="bar" style="height:60%"></div><div class="bar-label">Пт</div></div>
-      <div class="bar-wrap"><div class="bar" style="height:0%"></div><div class="bar-label">Сб</div></div>
-      <div class="bar-wrap"><div class="bar" style="height:0%"></div><div class="bar-label">Нд</div></div>
-    </div>
-  </div>
-  <div class="section-title">Особисті рекорди</div>
-  <div class="record-list">
-    <div class="record-item"><div class="record-icon">🏆</div><div class="record-info"><div class="record-name">Жим лежачи</div><div class="record-date">08.06.2026</div></div><div class="record-val">100кг</div></div>
-    <div class="record-item"><div class="record-icon">🦵</div><div class="record-info"><div class="record-name">Присідання</div><div class="record-date">06.06.2026</div></div><div class="record-val">120кг</div></div>
-    <div class="record-item"><div class="record-icon">💪</div><div class="record-info"><div class="record-name">Підтягування</div><div class="record-date">05.06.2026</div></div><div class="record-val">15 разів</div></div>
-    <div class="record-item"><div class="record-icon">🔥</div><div class="record-info"><div class="record-name">Станова тяга</div><div class="record-date">04.06.2026</div></div><div class="record-val">140кг</div></div>
-  </div>
-</div>
-
-<div class="screen" id="screen-sub">
-  <div class="header"><div class="username">💎 ПІДПИСКА</div><div style="font-size:13px;color:var(--text-dim);margin-top:4px">Обери свій план</div></div>
-  <div class="plan-cards">
-    <div class="plan-card">
-      <div class="plan-name">FREE</div>
-      <div class="plan-price"><span>0₴</span> / назавжди</div>
-      <div class="plan-features">
-        <div class="plan-feature"><span class="check">✓</span> 3 програми тренувань</div>
-        <div class="plan-feature"><span class="check">✓</span> Базовий конструктор</div>
-        <div class="plan-feature"><span class="cross">✗</span> Відстеження прогресу</div>
-        <div class="plan-feature"><span class="cross">✗</span> Особисті рекорди</div>
-      </div>
-    </div>
-    <div class="plan-card premium">
-      <div class="plan-badge">🔥 ПОПУЛЯРНИЙ</div>
-      <div class="plan-name" style="color:var(--gold)">ПРЕМІУМ</div>
-      <div class="plan-price"><span>299₴</span> / місяць</div>
-      <div class="plan-features">
-        <div class="plan-feature"><span class="check">✓</span> 108 програм тренувань</div>
-        <div class="plan-feature"><span class="check">✓</span> Повний прогрес і рекорди</div>
-        <div class="plan-feature"><span class="check">✓</span> Реферальна система</div>
-        <div class="plan-feature"><span class="check">✓</span> Пріоритетна підтримка</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <div style="background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-size:9px;font-weight:800;padding:4px 10px;border-radius:20px">⭐ ПРЕМІУМ</div>
+        <div class="cb">🪙 <span id="home-coins">1 240</span></div>
       </div>
     </div>
   </div>
-  <button class="sub-btn" onclick="Telegram.WebApp.sendData('open_subscription')">Активувати Преміум 🚀</button>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:0 20px 12px">
+    <div class="sc"><div class="sn" id="home-workouts">24</div><div class="sl">Тренувань</div></div>
+    <div class="sc"><div class="sn" style="color:var(--red)" id="home-streak">7</div><div class="sl">Стрік 🔥</div></div>
+    <div class="sc"><div class="sn" style="color:var(--green)" id="home-records">12</div><div class="sl">Рекордів</div></div>
+  </div>
+
+  <!-- XP Card -->
+  <div class="xpc">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px">Рівень <span id="xp-level">8</span> · <span id="xp-rank">Любитель</span></div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold)"><span id="xp-cur">800</span> / <span id="xp-max">1200</span> XP</div>
+      </div>
+      <div style="font-size:22px;animation:fflame 1.2s ease-in-out infinite alternate">⚡</div>
+    </div>
+    <div class="xpb"><div class="xpf" id="xp-bar" style="width:68%"></div></div>
+    <div style="font-size:10px;color:var(--dim);margin-top:5px">До рівня <span id="xp-next-level">9</span>: +<span id="xp-need">400</span> XP</div>
+  </div>
+
+  <div style="padding:0 20px 12px">
+    <button class="gbtn" onclick="go('workout')">💪 Почати тренування</button>
+  </div>
+
+  <!-- Daily missions -->
+  <div class="sh">🎯 Щоденні місії <span style="font-size:10px;color:var(--dim);font-family:'DM Sans';font-weight:400" id="missions-count">2/3 виконано</span></div>
+  <div class="mission-card done">
+    <div class="mc-icon">🏋️</div>
+    <div class="mc-info"><div class="mc-title">Зробити тренування</div><div class="mc-prog">Виконано ✓</div></div>
+    <div class="mc-check">✓</div>
+  </div>
+  <div class="mission-card done">
+    <div class="mc-icon">🏆</div>
+    <div class="mc-info"><div class="mc-title">Побити особистий рекорд</div><div class="mc-prog">Виконано ✓</div></div>
+    <div class="mc-check">✓</div>
+  </div>
+  <div class="mission-card" style="margin-bottom:14px">
+    <div class="mc-icon">📸</div>
+    <div class="mc-info">
+      <div class="mc-title">Завантажити фото прогресу</div>
+      <div class="mc-prog">0 / 1</div>
+      <div class="mpb"><div class="mpf" style="width:0%"></div></div>
+    </div>
+    <div class="mc-xp">+50 XP</div>
+  </div>
+
+  <!-- Records -->
+  <div class="sh">🏆 Особисті рекорди</div>
+  <div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:7px">
+    <div class="ri">
+      <div class="ri-ic">🏆</div>
+      <div class="ri-in"><div class="ri-n">Жим лежачи</div><div class="ri-s">Сьогодні · +50 XP</div></div>
+      <div class="ri-v">100кг</div>
+    </div>
+    <div class="ri">
+      <div class="ri-ic">🦵</div>
+      <div class="ri-in"><div class="ri-n">Присідання</div><div class="ri-s">2 дні тому</div></div>
+      <div class="ri-v">130кг</div>
+    </div>
+    <div class="ri">
+      <div class="ri-ic">💪</div>
+      <div class="ri-in"><div class="ri-n">Станова тяга</div><div class="ri-s">5 днів тому</div></div>
+      <div class="ri-v">150кг</div>
+    </div>
+  </div>
 </div>
 
-<div class="screen" id="screen-profile">
-  <div class="profile-header">
-    <div class="avatar">💪</div>
-    <div class="profile-name" id="profile-name">КОРИСТУВАЧ</div>
-    <div class="profile-level">⭐ Преміум · Середній рівень</div>
-  </div>
-  <div class="menu-list">
-    <div class="menu-item"><div class="menu-item-icon">📊</div><div class="menu-item-text"><div class="menu-item-title">Моя статистика</div><div class="menu-item-sub">24 тренування · 7 рекордів</div></div><div class="menu-item-arrow">›</div></div>
-    <div class="menu-item"><div class="menu-item-icon">🎁</div><div class="menu-item-text"><div class="menu-item-title">Реферальна програма</div><div class="menu-item-sub">Запроси друга — отримай 7 днів</div></div><div class="menu-item-arrow">›</div></div>
-    <div class="menu-item"><div class="menu-item-icon">⚙️</div><div class="menu-item-text"><div class="menu-item-title">Налаштування</div><div class="menu-item-sub">Рівень, локація, сповіщення</div></div><div class="menu-item-arrow">›</div></div><div class="menu-item"><div class="menu-item-icon">🆘</div><div class="menu-item-text"><div class="menu-item-title">Підтримка</div><div class="menu-item-sub">Написати тренеру</div></div><div class="menu-item-arrow">›</div></div>
-    <div class="menu-item"><div class="menu-item-icon">📢</div><div class="menu-item-text"><div class="menu-item-title">Наш канал</div><div class="menu-item-sub">Новини та поради</div></div><div class="menu-item-arrow">›</div></div>
+<!-- ═══════════════════════════════════════ JOURNAL ═══════════════════════════════════════ -->
+<div class="scr" id="journal">
+  <div class="back" onclick="go('home')">← Назад</div>
+  <div class="ph"><div class="pt">📓 ЖУРНАЛ</div><div class="ps">Твоя спортивна історія</div></div>
+  <div style="padding:0 20px;display:flex;flex-direction:column;gap:8px;margin-bottom:20px" id="journal-list">
+    <div class="card" style="padding:14px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+        <div><div style="font-size:13px;font-weight:700">💪 Спліт — День 1 (Груди/Трицепс)</div><div style="font-size:10px;color:var(--dim);margin-top:2px">Сьогодні · 58 хв · +100 XP</div></div>
+        <div style="font-size:10px;color:var(--green);font-weight:600">+2 рекорди</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <span class="tag">Жим 100кг×5</span><span class="tag">Розводка 22кг×12</span><span class="tag">Відтискання 3×15</span>
+      </div>
+    </div>
+    <div class="card" style="padding:14px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+        <div><div style="font-size:13px;font-weight:700">🦵 Спліт — День 3 (Ноги)</div><div style="font-size:10px;color:var(--dim);margin-top:2px">Вчора · 72 хв · +100 XP</div></div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <span class="tag">Присідання 130кг×5</span><span class="tag">Жим ногами 180кг</span>
+      </div>
+    </div>
+    <div class="card" style="padding:14px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+        <div><div style="font-size:13px;font-weight:700">🔥 Спліт — День 2 (Спина/Біцепс)</div><div style="font-size:10px;color:var(--dim);margin-top:2px">3 дні тому · 65 хв · +100 XP</div></div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <span class="tag">Підтягування 15</span><span class="tag">Тяга штанги 80кг</span>
+      </div>
+    </div>
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════ RANKING ═══════════════════════════════════════ -->
+<div class="scr" id="ranking">
+  <div class="ph"><div class="pt">🏆 РЕЙТИНГ</div><div class="ps">Сезон 1 · Закінчується через 18 днів</div></div>
+
+  <div class="season-banner">
+    <div class="season-bg"></div>
+    <div class="season-title">🌟 СЕЗОН 1 — ПОЧАТОК</div>
+    <div class="season-sub">Топ-3 отримують ексклюзивні нагороди</div>
+    <div class="season-timer" id="season-timer">18 : 04 : 32</div>
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:rgba(167,139,250,.65);margin-top:6px;position:relative">
+      <span>Твоя позиція: #4</span><span>42% сезону</span>
+    </div>
+    <div class="season-prog"><div class="season-fill"></div></div>
+  </div>
+
+  <!-- Podium -->
+  <div style="padding:0 20px 6px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:var(--dim)">ПРИЗЕРИ СЕЗОНУ</div>
+  <div class="rank-podium">
+    <div class="podium-item" style="order:1">
+      <div class="podium-avatar" style="background:linear-gradient(135deg,#C0C0C0,#888)">🏋️</div>
+      <div class="podium-name">Олексій</div>
+      <div class="podium-xp">3 640</div>
+      <div class="podium-bar" style="width:40px;height:40px;background:linear-gradient(180deg,#C0C0C0,#666)"></div>
+    </div>
+    <div class="podium-item" style="order:0">
+      <div class="podium-avatar" style="background:linear-gradient(135deg,#FFD700,#FFA500);border:2px solid #FFD700">😎</div>
+      <div class="podium-name">Максим</div>
+      <div class="podium-xp">4 820</div>
+      <div class="podium-bar" style="width:40px;height:56px;background:linear-gradient(180deg,#FFD700,#C47A00)"></div>
+    </div>
+    <div class="podium-item" style="order:2">
+      <div class="podium-avatar" style="background:linear-gradient(135deg,#CD7F32,#8B4513)">💪</div>
+      <div class="podium-name">Діана</div>
+      <div class="podium-xp">2 910</div>
+      <div class="podium-bar" style="width:40px;height:28px;background:linear-gradient(180deg,#CD7F32,#8B4513)"></div>
+    </div>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="rank-filter">
+    <button class="rfbtn active" onclick="setRankFilter(this,'xp')">XP</button>
+    <button class="rfbtn" onclick="setRankFilter(this,'streak')">Стрік</button>
+    <button class="rfbtn" onclick="setRankFilter(this,'records')">Рекорди</button>
+    <button class="rfbtn" style="color:var(--purple);border-color:rgba(167,139,250,.4)" onclick="setRankFilter(this,'season')">🌟 Сезон</button>
+  </div>
+
+  <div class="rank-list" id="rank-list">
+    <div class="rl"><div class="rp" style="color:#FFD700">1</div><div class="rav" style="background:linear-gradient(135deg,#FFD700,#FFA500)">😎</div><div class="ri2"><div class="rn">Максим К.</div><div class="rlv">Рівень 24 · Атлет</div></div><div class="rxp">4 820</div></div>
+    <div class="rl"><div class="rp" style="color:#C0C0C0">2</div><div class="rav" style="background:linear-gradient(135deg,#A78BFA,#7C3AED)">🏋️</div><div class="ri2"><div class="rn">Олексій Р.</div><div class="rlv">Рівень 19 · Атлет</div></div><div class="rxp">3 640</div></div>
+    <div class="rl"><div class="rp" style="color:#CD7F32">3</div><div class="rav" style="background:linear-gradient(135deg,#4ADE80,#16A34A)">💪</div><div class="ri2"><div class="rn">Діана М.</div><div class="rlv">Рівень 15 · Любитель</div></div><div class="rxp">2 910</div></div>
+    <div class="rl me"><div class="rp" style="color:var(--gold)">4</div><div class="rav" id="rankAv" style="background:linear-gradient(135deg,var(--gold),var(--gold2))">😤</div><div class="ri2"><div class="rn">Назар · <span style="font-size:10px;color:var(--gold)">Ти</span></div><div class="rlv">Рівень 8 · Любитель</div></div><div class="rxp">800</div></div>
+    <div class="rl"><div class="rp" style="color:var(--dim)">5</div><div class="rav" style="background:linear-gradient(135deg,#F472B6,#BE185D)">🤸</div><div class="ri2"><div class="rn">Вікторія Л.</div><div class="rlv">Рівень 7 · Любитель</div></div><div class="rxp">620</div></div>
+  </div>
+
+  <!-- Season rewards -->
+  <div class="sh" style="padding-top:4px">🎁 Нагороди сезону</div>
+  <div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:8px">
+    <div class="card" style="padding:14px;display:flex;align-items:center;gap:12px;border-color:rgba(255,215,0,.3)">
+      <div style="font-size:28px">🥇</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:700;color:#FFD700">1 місце</div><div style="font-size:11px;color:var(--dim);margin-top:2px">Титул «Чемпіон Сезону» + 5000🪙 + ексклюзивна рамка</div></div>
+    </div>
+    <div class="card" style="padding:14px;display:flex;align-items:center;gap:12px;border-color:rgba(192,192,192,.3)">
+      <div style="font-size:28px">🥈</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:700;color:#C0C0C0">2 місце</div><div style="font-size:11px;color:var(--dim);margin-top:2px">Титул «Фіналіст» + 2500🪙 + срібна рамка</div></div>
+    </div>
+    <div class="card" style="padding:14px;display:flex;align-items:center;gap:12px;border-color:rgba(205,127,50,.3)">
+      <div style="font-size:28px">🥉</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:700;color:#CD7F32">3 місце</div><div style="font-size:11px;color:var(--dim);margin-top:2px">Титул «Призер» + 1000🪙 + бронзова рамка</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ ACHIEVEMENTS ═══════════════════════════════════════ -->
+<div class="scr" id="achievements">
+  <div class="ph"><div class="pt">🏅 ДОСЯГНЕННЯ</div><div class="ps">12 з 48 · 1 240🪙 зароблено</div></div>
+  <div class="ach-head">
+    <div class="ach-hs"><div class="ahn">12</div><div class="ahl">Отримано</div></div>
+    <div class="ach-hs"><div class="ahn" style="color:var(--gold)">1 240</div><div class="ahl">🪙 GymCoin</div></div>
+  </div>
+
+  <!-- Streak milestones -->
+  <div class="sh">🔥 Нагороди за стрік</div>
+  <div class="streak-row">
+    <div class="stk earned"><div class="stk-ic">🔥</div><div class="stk-d">7 днів</div><div class="stk-r">+100🪙</div><div style="font-size:9px;color:var(--green);margin-top:3px">✓</div></div>
+    <div class="stk next"><div class="stk-ic">⭐</div><div class="stk-d">14 днів</div><div class="stk-r">+200🪙</div><div style="font-size:9px;color:var(--blue);margin-top:3px">7→14</div></div>
+    <div class="stk"><div class="stk-ic">💎</div><div class="stk-d">30 днів</div><div class="stk-r">+500🪙</div><div style="font-size:9px;color:var(--dim);margin-top:3px">🔒</div></div>
+    <div class="stk"><div class="stk-ic">👑</div><div class="stk-d">60 днів</div><div class="stk-r">+1000🪙</div><div style="font-size:9px;color:var(--dim);margin-top:3px">🔒</div></div>
+    <div class="stk"><div class="stk-ic">🌟</div><div class="stk-d">100 днів</div><div class="stk-r">Титул</div><div style="font-size:9px;color:var(--dim);margin-top:3px">🔒</div></div>
+  </div>
+
+  <div class="sh">📦 Колекція</div>
+  <div class="agrid">
+    <div class="ac unlocked"><div class="ai">🥇</div><div class="an">Перший крок</div><div class="ad">+100🪙</div><div style="margin-top:6px"><span class="tag" style="background:rgba(74,222,128,.15);color:var(--green)">✓ Отримано</span></div></div>
+    <div class="ac unlocked"><div class="ai">💥</div><div class="an">10 тренувань</div><div class="ad">+200🪙</div><div style="margin-top:6px"><span class="tag" style="background:rgba(74,222,128,.15);color:var(--green)">✓ Отримано</span></div></div>
+    <div class="ac unlocked"><div class="ai">🔥</div><div class="an">7 днів підряд</div><div class="ad">+100🪙</div><div style="margin-top:6px"><span class="tag" style="background:rgba(74,222,128,.15);color:var(--green)">✓ Отримано</span></div></div>
+    <div class="ac unlocked"><div class="ai">📸</div><div class="an">Перше фото</div><div class="ad">+50🪙</div><div style="margin-top:6px"><span class="tag" style="background:rgba(74,222,128,.15);color:var(--green)">✓ Отримано</span></div></div>
+    <div class="ac locked"><div class="ai">⚡</div><div class="an">50 тренувань</div><div class="ad">+500🪙</div><div style="font-size:9px;color:var(--dim);margin-top:6px">24/50</div><div class="apb"><div class="apf" style="width:48%"></div></div></div>
+    <div class="ac locked" style="border-color:rgba(74,222,128,.3);opacity:.9"><div class="ai">💪</div><div class="an">Жим 100 кг</div><div class="ad">+300🪙</div><div style="font-size:9px;color:var(--green);margin-top:6px">Готово! 🎉</div><div class="apb"><div class="apf" style="width:100%;background:var(--green)"></div></div></div>
+    <div class="ac locked"><div class="ai">👥</div><div class="an">10 друзів</div><div class="ad">+250🪙</div><div style="font-size:9px;color:var(--dim);margin-top:6px">3/10</div><div class="apb"><div class="apf" style="width:30%"></div></div></div>
+    <div class="ac locked"><div class="ai">📓</div><div class="an">30 записів</div><div class="ad">+400🪙</div><div style="font-size:9px;color:var(--dim);margin-top:6px">24/30</div><div class="apb"><div class="apf" style="width:80%"></div></div></div><div class="ac locked"><div class="ai">🌍</div><div class="an">Топ-3</div><div class="ad">+600🪙</div><div style="font-size:9px;color:var(--dim);margin-top:6px">#4 зараз</div><div class="apb"><div class="apf" style="width:0%"></div></div></div>
+    <div class="ac locked"><div class="ai">🏃</div><div class="an">Кардіо 10 раз</div><div class="ad">+150🪙</div><div style="font-size:9px;color:var(--dim);margin-top:6px">2/10</div><div class="apb"><div class="apf" style="width:20%"></div></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ PROFILE ═══════════════════════════════════════ -->
+<div class="scr" id="profile">
+  <div class="ph">
+    <div style="text-align:center">
+      <div class="pav-wrap" onclick="document.getElementById('avIn').click()">
+        <div class="pav" id="pav">💪</div>
+        <div class="pav-edit">✏️</div>
+      </div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px">НАЗАР</div>
+      <div style="font-size:11px;color:var(--gold);font-weight:600;text-transform:uppercase;letter-spacing:2px;margin-top:3px" id="activeTitle">⚡ Залізна Воля</div>
+      <div style="display:flex;justify-content:center;gap:8px;margin-top:10px">
+        <div class="cb">🪙 1 240</div>
+        <div class="streak-badge"><span class="fire">🔥</span> 7 стрік</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:0 20px 14px">
+    <div class="sc"><div class="sn">24</div><div class="sl">Тренувань</div></div>
+    <div class="sc"><div class="sn" style="color:var(--red)">7</div><div class="sl">Стрік 🔥</div></div>
+    <div class="sc"><div class="sn" style="color:var(--green)">12</div><div class="sl">Рекордів</div></div>
+  </div>
+
+  <!-- Photo progress compare -->
+  <div class="sh">📊 Порівняння прогресу</div>
+  <div class="compare-wrap">
+    <div class="compare-grid">
+      <div class="cmp-card">
+        <div class="cmp-img" id="cmpBefore">📷</div>
+        <div class="cmp-lbl">До · 01.01.2026</div>
+        <div class="cmp-diff"><span class="diff-neg diff-tag">-8 кг жиру</span></div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-img" id="cmpAfter" style="font-size:44px">💪</div>
+        <div class="cmp-lbl">Після · 09.06.2026</div>
+        <div class="cmp-diff"><span class="diff-pos diff-tag">+12 кг м'язів</span><span class="diff-pos diff-tag">Жим +20кг</span></div>
+      </div>
+    </div>
+    <div style="margin-top:10px;text-align:center">
+      <button onclick="document.getElementById('cmpIn').click()" style="background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.3);color:var(--gold);border-radius:10px;padding:8px 18px;font-size:12px;font-weight:600;cursor:pointer">📸 Оновити фото «Після»</button>
+    </div>
+  </div>
+
+  <!-- Photo gallery -->
+  <div class="sh">📸 Галерея прогресу</div>
+  <div style="padding:0 20px 14px">
+    <div class="pgrid" id="pgrid"></div>
+  </div>
+
+  <!-- Profile menu -->
+  <div class="sh">Налаштування</div>
+  <div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:7px">
+    <div class="card" style="padding:14px;display:flex;align-items:center;gap:11px;cursor:pointer" onclick="go('shop')">
+      <div style="font-size:20px;width:30px;text-align:center">🛒</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600">Магазин</div><div style="font-size:11px;color:var(--dim);margin-top:2px">Аватари, рамки, титули за GymCoin</div></div>
+      <div style="color:var(--dim)">›</div>
+    </div>
+    <div class="card" style="padding:14px;display:flex;align-items:center;gap:11px;cursor:pointer" onclick="go('titles')">
+      <div style="font-size:20px;width:30px;text-align:center">👑</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600">Мої титули</div><div style="font-size:11px;color:var(--dim);margin-top:2px">4 отримано · 1 активний</div></div>
+      <div style="color:var(--dim)">›</div>
+    </div><div class="card" style="padding:14px;display:flex;align-items:center;gap:11px;cursor:pointer" onclick="go('journal')">
+      <div style="font-size:20px;width:30px;text-align:center">📓</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600">Журнал тренувань</div><div style="font-size:11px;color:var(--dim);margin-top:2px">24 записи · переглянути всі</div></div>
+      <div style="color:var(--dim)">›</div>
+    </div>
+    <div class="card" style="padding:14px;display:flex;align-items:center;gap:11px;cursor:pointer">
+      <div style="font-size:20px;width:30px;text-align:center">🎁</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600">Реферальна програма</div><div style="font-size:11px;color:var(--dim);margin-top:2px">Запроси друга — +7 днів і 200🪙</div></div>
+      <div style="color:var(--dim)">›</div>
+    </div>
+    <div class="card" style="padding:14px;display:flex;align-items:center;gap:11px;cursor:pointer">
+      <div style="font-size:20px;width:30px;text-align:center">💎</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600">Підписка Преміум</div><div style="font-size:11px;color:var(--dim);margin-top:2px">Активна до 29.06.2026</div></div>
+      <div style="color:var(--dim)">›</div>
+    </div>
+    <div class="card" style="padding:14px;display:flex;align-items:center;gap:11px;cursor:pointer">
+      <div style="font-size:20px;width:30px;text-align:center">🔔</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600">Сповіщення</div><div style="font-size:11px;color:var(--dim);margin-top:2px">Нагадування про тренування</div></div>
+      <div class="tgl on" onclick="this.classList.toggle('on')"><div class="tgl-k"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ SHOP ═══════════════════════════════════════ -->
+<div class="scr" id="shop">
+  <div class="back" onclick="go('profile')">← Профіль</div>
+  <div class="ph">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div><div class="pt">🛒 МАГАЗИН</div><div class="ps">Витрачай GymCoin з розумом</div></div>
+      <div class="cb">🪙 1 240</div>
+    </div>
+  </div>
+  <div class="shop-tabs" id="shop-tabs">
+    <div class="stab active" onclick="switchShopTab(this,'avatars')">Аватари</div>
+    <div class="stab" onclick="switchShopTab(this,'frames')">Рамки</div>
+    <div class="stab" onclick="switchShopTab(this,'backgrounds')">Фони</div>
+    <div class="stab" onclick="switchShopTab(this,'boosts')">Бусти</div>
+  </div>
+
+  <!-- Avatars -->
+  <div id="shop-avatars">
+    <div class="shop-grid">
+      <div class="shopcard owned"><div class="sc-prev" style="background:linear-gradient(135deg,#1a1a3a,#0d0d20)">💪</div><div class="sc-info"><div class="sc-name">Культурист</div><div class="sc-price"><span class="sc-own">✓ Маєш</span></div></div></div>
+      <div class="shopcard" onclick="buyItem(this,300)"><div class="sc-prev" style="background:linear-gradient(135deg,#1a2a1a,#0d150d)">🦁</div><div class="sc-info"><div class="sc-name">Лев</div><div class="sc-price"><span class="sc-cost">🪙 300</span><button style="background:var(--gold);color:#000;border:none;border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;cursor:pointer">Купити</button></div></div></div>
+      <div class="shopcard" onclick="buyItem(this,400)"><div class="sc-prev" style="background:linear-gradient(135deg,#1a1a3a,#0d1520)">🐺</div><div class="sc-info"><div class="sc-name">Вовк</div><div class="sc-price"><span class="sc-cost">🪙 400</span><button style="background:var(--gold);color:#000;border:none;border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;cursor:pointer">Купити</button></div></div></div><div class="shopcard" onclick="buyItem(this,800)"><div class="sc-prev" style="background:linear-gradient(135deg,#2a1a2a,#150d15)">👑</div><div class="sc-info"><div class="sc-name">Король</div><div class="sc-price"><span class="sc-cost">🪙 800</span><button style="background:var(--gold);color:#000;border:none;border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;cursor:pointer">Купити</button></div></div></div>
+      <div class="shopcard"><div class="sc-prev" style="background:linear-gradient(135deg,#1a2020,#0d1515)">🐉</div><div class="sc-info"><div class="sc-name">Дракон</div><div class="sc-price"><span class="sc-cost">🪙 1200</span><button style="background:rgba(255,255,255,.1);color:var(--dim);border:none;border-radius:6px;padding:3px 10px;font-size:10px;cursor:default">Мало🪙</button></div></div></div>
+      <div class="shopcard"><div class="sc-prev" style="background:linear-gradient(135deg,#2a1a1a,#1a0a0a)">🔱</div><div class="sc-info"><div class="sc-name">Посейдон</div><div class="sc-price"><span style="font-size:10px;color:var(--purple)">🌟 Сезон 1</span></div></div></div>
+    </div>
+  </div>
+
+  <!-- Frames -->
+  <div id="shop-frames" style="display:none">
+    <div class="shop-grid">
+      <div class="shopcard owned"><div class="sc-prev" style="background:linear-gradient(135deg,#1a1a2a,#0d0d18)">⬜</div><div class="sc-info"><div class="sc-name">Стандартна</div><div class="sc-price"><span class="sc-own">✓ Маєш</span></div></div></div>
+      <div class="shopcard" onclick="buyItem(this,200)"><div class="sc-prev" style="background:linear-gradient(135deg,#1a2510,#0d1508)">🟩</div><div class="sc-info"><div class="sc-name">Зелена</div><div class="sc-price"><span class="sc-cost">🪙 200</span><button style="background:var(--gold);color:#000;border:none;border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;cursor:pointer">Купити</button></div></div></div>
+      <div class="shopcard" onclick="buyItem(this,500)"><div class="sc-prev" style="background:linear-gradient(135deg,#251510,#180d08)">🔶</div><div class="sc-info"><div class="sc-name">Золота</div><div class="sc-price"><span class="sc-cost">🪙 500</span><button style="background:var(--gold);color:#000;border:none;border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;cursor:pointer">Купити</button></div></div></div>
+      <div class="shopcard"><div class="sc-prev" style="background:linear-gradient(135deg,#251025,#180a18)">🟣</div><div class="sc-info"><div class="sc-name">Фіолетова</div><div class="sc-price"><span style="font-size:10px;color:var(--purple)">🌟 Сезон</span></div></div></div>
+    </div>
+  </div>
+
+  <!-- Backgrounds -->
+  <div id="shop-backgrounds" style="display:none">
+    <div class="shop-grid">
+      <div class="shopcard owned"><div class="sc-prev" style="background:linear-gradient(135deg,#0d0d14,#13131e)">🌌</div><div class="sc-info"><div class="sc-name">Темний космос</div><div class="sc-price"><span class="sc-own">✓ Маєш</span></div></div></div>
+      <div class="shopcard" onclick="buyItem(this,350)"><div class="sc-prev" style="background:linear-gradient(135deg,#0a1a0a,#0d150d)">🌿</div><div class="sc-info"><div class="sc-name">Ліс</div><div class="sc-price"><span class="sc-cost">🪙 350</span><button style="background:var(--gold);color:#000;border:none;border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;cursor:pointer">Купити</button></div></div></div>
+      <div class="shopcard" onclick="buyItem(this,600)"><div class="sc-prev" style="background:linear-gradient(135deg,#1a0a0a,#200505)">🔥</div><div class="sc-info"><div class="sc-name">Вогонь</div><div class="sc-price"><span class="sc-cost">🪙 600</span><button style="background:var(--gold);color:#000;border:none;border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;cursor:pointer">Купити</button></div></div></div><div class="shopcard" onclick="buyItem(this,450)"><div class="sc-prev" style="background:linear-gradient(135deg,#0a0a1a,#05051a)">🌊</div><div class="sc-info"><div class="sc-name">Океан</div><div class="sc-price"><span class="sc-cost">🪙 450</span><button style="background:var(--gold);color:#000;border:none;border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;cursor:pointer">Купити</button></div></div></div>
+    </div>
+  </div>
+
+  <!-- Boosts -->
+  <div id="shop-boosts" style="display:none;padding:0 20px 20px;display:none;flex-direction:column;gap:10px" id="shop-boosts-inner">
+    <div class="card" style="padding:16px;display:flex;align-items:center;gap:14px">
+      <div style="font-size:32px">⚡</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:700">XP Буст ×2</div><div style="font-size:11px;color:var(--dim);margin-top:2px">Подвійний XP на 24 години</div></div>
+      <button onclick="buyBoost(this,200)" style="background:var(--gold);color:#000;border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer">🪙 200</button>
+    </div>
+    <div class="card" style="padding:16px;display:flex;align-items:center;gap:14px">
+      <div style="font-size:32px">🛡️</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:700">Захист стріку</div><div style="font-size:11px;color:var(--dim);margin-top:2px">1 день без втрати стріку</div></div>
+      <button onclick="buyBoost(this,150)" style="background:var(--gold);color:#000;border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer">🪙 150</button>
+    </div>
+    <div class="card" style="padding:16px;display:flex;align-items:center;gap:14px">
+      <div style="font-size:32px">🎯</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:700">Місія×3</div><div style="font-size:11px;color:var(--dim);margin-top:2px">Потрійна нагорода за місії сьогодні</div></div>
+      <button onclick="buyBoost(this,300)" style="background:var(--gold);color:#000;border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer">🪙 300</button>
+    </div>
+    <div class="card" style="padding:16px;display:flex;align-items:center;gap:14px">
+      <div style="font-size:32px">📋</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:700">Персональний план</div><div style="font-size:11px;color:var(--dim);margin-top:2px">Індивідуальна програма від тренера</div></div>
+      <button onclick="buyBoost(this,750)" style="background:var(--gold);color:#000;border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer">🪙 750</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ TITLES ═══════════════════════════════════════ -->
+<div class="scr" id="titles">
+  <div class="back" onclick="go('profile')">← Профіль</div>
+  <div class="ph"><div class="pt">👑 ТИТУЛИ</div><div class="ps">4 отримано · натисни щоб одягнути</div></div>
+  <div class="title-list">
+    <div class="tc active-t" onclick="setTitle(this,'⚡ Залізна Воля')">
+      <div class="tc-icon">⚡</div>
+      <div class="tc-info"><div class="tc-name">Залізна Воля</div><div class="tc-desc">Виконав 7 тренувань підряд</div></div>
+      <span class="tc-badge tc-eq">Одягнутий</span>
+    </div>
+    <div class="tc" onclick="setTitle(this,'🔥 7 Днів Без Пропусків')">
+      <div class="tc-icon">🔥</div>
+      <div class="tc-info"><div class="tc-name">7 Днів Без Пропусків</div><div class="tc-desc">7-денний стрік</div></div>
+      <span class="tc-badge tc-buy">Одягнути</span>
+    </div>
+    <div class="tc" onclick="setTitle(this,'💪 100 Кілограм')">
+      <div class="tc-icon">💪</div>
+      <div class="tc-info"><div class="tc-name">100 Кілограм</div><div class="tc-desc">Жим лежачи 100 кг</div></div>
+      <span class="tc-badge tc-buy">Одягнути</span>
+    </div>
+    <div class="tc" onclick="setTitle(this,'🥇 Перший Рекорд')">
+      <div class="tc-icon">🥇</div><div class="tc-info"><div class="tc-name">Перший Рекорд</div><div class="tc-desc">Перший особистий рекорд</div></div>
+      <span class="tc-badge tc-buy">Одягнути</span>
+    </div>
+    <div class="tc" style="opacity:.45;pointer-events:none">
+      <div class="tc-icon">🌟</div>
+      <div class="tc-info"><div class="tc-name">Чемпіон Сезону</div><div class="tc-desc">Зайняти 1 місце в сезонному рейтингу</div></div>
+      <span class="tc-badge tc-lock">🔒 Сезон 1</span>
+    </div>
+    <div class="tc" style="opacity:.45;pointer-events:none">
+      <div class="tc-icon">👑</div>
+      <div class="tc-info"><div class="tc-name">Легенда</div><div class="tc-desc">Досягнути рівня 76+</div></div>
+      <span class="tc-badge tc-lock">🔒 Рівень 76</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ WORKOUT ═══════════════════════════════════════ -->
+<div class="scr" id="workout">
+  <div class="ph">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div><div class="pt">💪 ТРЕНУВАННЯ</div><div class="ps">108 програм · конструктор</div></div>
+      <div class="cb">🪙 +XP</div>
+    </div>
+  </div>
+  <div class="workout-tabs" id="workout-tabs">
+    <div class="stab active" onclick="switchWTab(this,'programs')">Програми</div>
+    <div class="stab" onclick="switchWTab(this,'my')">Мої</div>
+    <div class="stab" onclick="switchWTab(this,'builder')">🔧 Конструктор</div>
+  </div>
+
+  <!-- PROGRAMS -->
+  <div id="wtab-programs">
+    <div style="display:flex;gap:6px;padding:0 20px 12px;overflow-x:auto;scrollbar-width:none">
+      <div class="rfbtn active" onclick="filterPrograms(this,'all')">Всі</div>
+      <div class="rfbtn" onclick="filterPrograms(this,'gym')">🏋️ Зал</div>
+      <div class="rfbtn" onclick="filterPrograms(this,'home')">🏠 Вдома</div>
+      <div class="rfbtn" onclick="filterPrograms(this,'street')">🌿 Вулиця</div>
+    </div>
+    <div id="programs-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 20px 20px">
+      <div class="shopcard" data-type="gym" onclick="go('program-detail')">
+        <div class="sc-prev" style="background:linear-gradient(135deg,#1a1a3a,#0d0d20);font-size:38px">🏋️</div>
+        <div class="sc-info"><div class="sc-name">Спліт 4 дні</div><div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:5px"><span class="tag">Зал</span><span class="tag">Середній</span></div></div>
+      </div>
+      <div class="shopcard" data-type="home" onclick="go('program-detail')">
+        <div class="sc-prev" style="background:linear-gradient(135deg,#1a2a1a,#0d150d);font-size:38px">🏠</div>
+        <div class="sc-info"><div class="sc-name">Вдома без інвентарю</div><div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:5px"><span class="tag">Дім</span><span class="tag">Початок</span></div></div>
+      </div>
+      <div class="shopcard" data-type="gym" onclick="go('program-detail')">
+        <div class="sc-prev" style="background:linear-gradient(135deg,#2a1a1a,#200d0d);font-size:38px">💪</div>
+        <div class="sc-info"><div class="sc-name">Фулбоді 3 дні</div><div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:5px"><span class="tag">Зал</span><span class="tag">Просунутий</span></div></div>
+      </div>
+      <div class="shopcard" data-type="street" onclick="go('program-detail')">
+        <div class="sc-prev" style="background:linear-gradient(135deg,#1a1a3a,#0d1520);font-size:38px">🤸</div>
+        <div class="sc-info"><div class="sc-name">Каліcтеніка</div><div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:5px"><span class="tag">Вулиця</span><span class="tag">Атлет</span></div></div>
+      </div>
+      <div class="shopcard" data-type="street" onclick="go('program-detail')">
+        <div class="sc-prev" style="background:linear-gradient(135deg,#1a2a2a,#0d1515);font-size:38px">🌿</div>
+        <div class="sc-info"><div class="sc-name">Функціонал</div><div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:5px"><span class="tag">Вулиця</span><span class="tag">Середній</span></div></div>
+      </div><div class="shopcard" data-type="home" onclick="go('program-detail')">
+        <div class="sc-prev" style="background:linear-gradient(135deg,#2a1a2a,#150d15);font-size:38px">🧘</div>
+        <div class="sc-info"><div class="sc-name">Схуднення</div><div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:5px"><span class="tag">Дім</span><span class="tag">Будь-який</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MY WORKOUTS -->
+  <div id="wtab-my" style="display:none;padding:0 20px 20px">
+    <div id="my-programs-list">
+      <div class="card" style="padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px">
+        <div style="font-size:28px">⚡</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700">Моє тренування #1</div>
+          <div style="font-size:10px;color:var(--dim);margin-top:2px">4 вправи · Груди та трицепс</div>
+        </div>
+        <button onclick="go('program-detail')" style="background:var(--gold);color:#000;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer">▶</button>
+      </div>
+    </div>
+    <button onclick="switchWTab(null,'builder')" class="gbtn" style="margin-top:4px">+ Створити нове тренування</button>
+  </div>
+
+  <!-- BUILDER -->
+  <div id="wtab-builder" style="display:none;padding:0 20px 20px">
+    <div class="card" style="padding:14px;margin-bottom:12px">
+      <div style="font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Назва тренування</div>
+      <input id="workout-name" type="text" placeholder="Наприклад: Груди та трицепс" class="input-field">
+    </div>
+    <div class="sh" style="padding-left:0">Вправи <span style="font-family:'DM Sans';font-size:11px;color:var(--dim);font-weight:400" id="ex-count">0 додано</span></div>
+    <div id="exercise-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px"></div>
+    <div class="card" style="padding:14px;margin-bottom:12px;border-style:dashed;border-color:rgba(245,200,66,.3)">
+      <div style="font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Додати вправу</div>
+      <input id="ex-name" type="text" placeholder="Назва вправи" class="input-field" style="margin-bottom:8px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
+        <input id="ex-sets" type="number" placeholder="Підходи" class="input-field" style="text-align:center">
+        <input id="ex-reps" type="number" placeholder="Повтори" class="input-field" style="text-align:center">
+        <input id="ex-weight" type="number" placeholder="кг" class="input-field" style="text-align:center">
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+        <button onclick="quickAdd('Жим лежачи',4,8,80)" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--dim);font-size:10px;cursor:pointer">+ Жим лежачи</button>
+        <button onclick="quickAdd('Присідання',4,6,100)" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--dim);font-size:10px;cursor:pointer">+ Присідання</button>
+        <button onclick="quickAdd('Підтягування',3,10,0)" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--dim);font-size:10px;cursor:pointer">+ Підтягування</button>
+        <button onclick="quickAdd('Станова тяга',3,5,120)" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--dim);font-size:10px;cursor:pointer">+ Станова тяга</button>
+      </div>
+      <button onclick="addExercise()" style="width:100%;background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.3);color:var(--gold);border-radius:10px;padding:10px;font-size:13px;font-weight:600;cursor:pointer">+ Додати вправу</button>
+    </div>
+    <button onclick="saveWorkout()" class="gbtn">💾 Зберегти тренування</button>
+  </div>
+</div>
+<!-- ═══════════════════════════════════════ PROGRAM DETAIL ═══════════════════════════════════════ -->
+<div class="scr" id="program-detail">
+  <div class="back" onclick="go('workout')">← Тренування</div>
+  <div class="ph">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div><div class="pt">СПЛІТ — ДЕНЬ 1</div><div class="ps">Груди · Трицепс · 4 вправи</div></div>
+      <div style="font-size:30px">🏋️</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:0 20px 14px">
+    <div class="sc"><div class="sn">4</div><div class="sl">Вправи</div></div>
+    <div class="sc"><div class="sn">58</div><div class="sl">Хвилин</div></div>
+    <div class="sc"><div class="sn" style="color:var(--gold)">+100</div><div class="sl">XP</div></div>
+  </div>
+  <div class="sh">Програма</div>
+  <div style="padding:0 20px;display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+    <div class="card" style="padding:14px;display:flex;align-items:center;gap:12px">
+      <div style="width:36px;height:36px;background:rgba(245,200,66,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);flex-shrink:0">1</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:700">Жим лежачи</div><div style="font-size:11px;color:var(--dim);margin-top:2px">4 підходи × 8 повторів · 80 кг</div></div>
+      <div style="font-size:18px">🏆</div>
+    </div>
+    <div class="card" style="padding:14px;display:flex;align-items:center;gap:12px">
+      <div style="width:36px;height:36px;background:rgba(245,200,66,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);flex-shrink:0">2</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:700">Розводка гантелей</div><div style="font-size:11px;color:var(--dim);margin-top:2px">3 підходи × 12 повторів · 22 кг</div></div>
+    </div>
+    <div class="card" style="padding:14px;display:flex;align-items:center;gap:12px">
+      <div style="width:36px;height:36px;background:rgba(245,200,66,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);flex-shrink:0">3</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:700">Французький жим</div><div style="font-size:11px;color:var(--dim);margin-top:2px">3 підходи × 10 повторів · 30 кг</div></div>
+    </div>
+    <div class="card" style="padding:14px;display:flex;align-items:center;gap:12px">
+      <div style="width:36px;height:36px;background:rgba(245,200,66,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);flex-shrink:0">4</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:700">Відтискання на брусах</div><div style="font-size:11px;color:var(--dim);margin-top:2px">3 підходи × 15 повторів</div></div>
+    </div>
+  </div>
+  <div style="padding:0 20px 20px">
+    <button class="gbtn" onclick="go('active-workout')">▶ Почати тренування · +100 XP</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ ACTIVE WORKOUT ═══════════════════════════════════════ -->
+<div class="scr" id="active-workout">
+  <div class="back" onclick="go('program-detail')">← Назад</div>
+  <div class="ph">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div><div class="pt">▶ В ПРОЦЕСІ</div><div class="ps">Спліт — День 1</div></div>
+      <div style="text-align:right">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--gold)" id="workout-timer">00:00</div>
+        <div style="font-size:10px;color:var(--dim)">час</div>
+      </div>
+    </div>
+  </div>
+  <div style="padding:0 20px 14px">
+    <!-- Progress -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-size:11px;color:var(--dim)">Прогрес тренування</div>
+      <div style="font-size:11px;font-weight:600;color:var(--gold)" id="workout-progress-text">0/4 вправ</div>
+    </div>
+    <div style="background:rgba(255,255,255,.07);border-radius:8px;height:6px;overflow:hidden;margin-bottom:14px">
+      <div id="workout-progress-bar" style="width:0%;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:8px;transition:width .5s ease"></div>
+    </div>
+  </div>
+
+  <!-- Exercises with set tracking -->
+  <div style="padding:0 20px;display:flex;flex-direction:column;gap:10px;margin-bottom:14px" id="active-exercises">
+    <!-- Жим лежачи -->
+    <div class="ex-active-card" id="aex-1">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div style="font-size:14px;font-weight:700">1. Жим лежачи</div>
+        <div style="font-size:12px;color:var(--gold)">80 кг</div>
+      </div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:8px">4 підходи × 8 повторів</div>
+      <div style="display:flex;flex-direction:column;gap:6px" id="sets-1"></div>
+    </div>
+    <!-- Розводка -->
+    <div class="card" style="padding:14px;opacity:.5" id="aex-2">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:14px;font-weight:700">2. Розводка гантелей</div>
+        <div style="font-size:12px;color:var(--dim)">22 кг</div>
+      </div>
+      <div style="font-size:11px;color:var(--dim);margin-top:4px">3 підходи × 12 повторів</div>
+    </div>
+    <div class="card" style="padding:14px;opacity:.5" id="aex-3">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:14px;font-weight:700">3. Французький жим</div>
+        <div style="font-size:12px;color:var(--dim)">30 кг</div>
+      </div>
+      <div style="font-size:11px;color:var(--dim);margin-top:4px">3 підходи × 10 повторів</div>
+    </div>
+    <div class="card" style="padding:14px;opacity:.5" id="aex-4">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:14px;font-weight:700">4. Відтискання на брусах</div>
+        <div style="font-size:12px;color:var(--dim)">власна вага</div>
+      </div>
+      <div style="font-size:11px;color:var(--dim);margin-top:4px">3 підходи × 15 повторів</div>
+    </div>
+  </div>
+
+  <div style="padding:0 20px 20px">
+    <button class="gbtn" onclick="finishWorkout()" id="finish-btn" style="opacity:.4;pointer-events:none">🏁 Завершити тренування</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ LIGHTBOX ═══════════════════════════════════════ -->
+<div class="lbox" id="lbox">
+  <div class="lbox-x" onclick="closeLb()">✕</div>
+  <div id="lbc"></div>
+  <div style="margin-top:16px;text-align:center">
+    <div style="font-size:11px;color:var(--dim);margin-bottom:8px" id="lbd"></div>
+    <button class="lbox-del" onclick="delPhoto()">🗑 Видалити фото</button>
+  </div>
+</div>
+
+<!-- Hidden file inputs -->
+<input type="file" id="avIn" accept="image/*" onchange="upAv(this)" style="display:none">
+<input type="file" id="phIn" accept="image/*" onchange="upPh(this)" style="display:none">
+<input type="file" id="cmpIn" accept="image/*" onchange="upCmp(this)" style="display:none">
+
+<!-- ═══════════════════════════════════════ NAV ═══════════════════════════════════════ -->
 <nav class="nav">
-  <div class="nav-item active" onclick="showScreen('home', this)"><div class="icon">🏠</div><div class="label">Головна</div></div>
-  <div class="nav-item" onclick="showScreen('progress', this)"><div class="icon">📈</div><div class="label">Прогрес</div></div>
-  <div class="nav-item" onclick="showScreen('sub', this)"><div class="icon">💎</div><div class="label">Підписка</div></div>
-  <div class="nav-item" onclick="showScreen('profile', this)"><div class="icon">👤</div><div class="label">Профіль</div></div>
-</nav>
+  <div class="ni active" id="n-home" onclick="go('home')"><div class="ic">🏠</div><div class="lb">Головна</div></div>
+  <div class="ni" id="n-workout" onclick="go('workout')"><div class="ic">💪</div><div class="lb">Тренування</div></div>
+  <div class="ni" id="n-ranking" onclick="go('ranking')"><div class="ic">🏆</div><div class="lb">Рейтинг</div></div>
+  <div class="ni" id="n-achievements" onclick="go('achievements')"><div class="ic">🏅</div><div class="lb">Досягнення</div></div>
+  <div class="ni" id="n-profile" onclick="go('profile')"><div class="ic">👤</div><div class="lb">Профіль</div></div>
+</nav></div><!-- .phone -->
 
 <script>
-  // Telegram WebApp init
-  const tg = window.Telegram.WebApp;
-  tg.ready();
-  tg.expand();
+// ─── NAVIGATION ───
+const NAV_SCREENS = ['home','workout','ranking','achievements','profile'];
+function go(name){
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  const s = document.getElementById(name);
+  if(s) s.classList.add('active');
+  const n = document.getElementById('n-'+name);
+  if(n) n.classList.add('active');
+  // nav highlight for sub-screens
+  if(name==='journal') document.getElementById('n-home').classList.add('active');
+  if(['shop','titles'].includes(name)) document.getElementById('n-profile').classList.add('active');
+  if(['program-detail','active-workout'].includes(name)) document.getElementById('n-workout').classList.add('active');
+}
 
-  // Get user name from Telegram
-  const user = tg.initDataUnsafe?.user;
-  if (user) {
-    const name = user.first_name || 'Користувач';
-    document.getElementById('user-name').textContent = name.toUpperCase();
-    document.getElementById('profile-name').textContent = name.toUpperCase();
-  }
+// ─── TOAST ───
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
 
-  function showScreen(name, el) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('screen-' + name).classList.add('active');
-    el.classList.add('active');
+// ─── CLOCK ───
+function updateClock(){
+  const now=new Date();
+  const h=String(now.getHours()).padStart(2,'0');
+  const m=String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('sbTime').textContent=h+':'+m;
+}
+updateClock(); setInterval(updateClock,10000);
+
+// ─── SEASON TIMER ───
+let seasonSecs = 18*86400 + 4*3600 + 32*60;
+function updateSeasonTimer(){
+  seasonSecs--;
+  const d=Math.floor(seasonSecs/86400);
+  const h=Math.floor((seasonSecs%86400)/3600);
+  const m=Math.floor((seasonSecs%3600)/60);
+  document.getElementById('season-timer').textContent=
+    ${d < 1 ? '' : d+' : '}${String(h).padStart(2,'0')} : ${String(m).padStart(2,'0')};
+}
+setInterval(updateSeasonTimer,60000);
+
+// ─── RANKING FILTER ───
+function setRankFilter(el, type){
+  document.querySelectorAll('.rank-filter .rfbtn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  // Could swap data here — just toast for prototype
+  const labels={xp:'Сортування: XP',streak:'Сортування: Стрік',records:'Сортування: Рекорди',season:'🌟 Сезонний рейтинг'};
+  toast(labels[type]||'');
+}
+
+// ─── PHOTO GALLERY ───
+let photos=[{e:'💪',d:'01.06.2026'},{e:'🏋️',d:'15.05.2026'},{e:'🔥',d:'01.05.2026'}];
+let openIdx=-1;
+
+function renderPhotos(){
+  const g=document.getElementById('pgrid');
+  g.innerHTML='';
+  photos.forEach((p,i)=>{
+    const c=document.createElement('div');
+    c.className='pc';
+    c.onclick=()=>openLb(i);
+    if(p.src) c.innerHTML=`<img src="${p.src}"><div class="pc-d">${p.d}</div>`;
+    else c.innerHTML=`<span style="font-size:32px">${p.e}</span><div class="pc-d">${p.d}</div>`;
+    g.appendChild(c);
+  });
+  const a=document.createElement('div');
+  a.className='pc pc-add';
+  a.onclick=()=>document.getElementById('phIn').click();
+  a.innerHTML='<div style="font-size:22px;color:var(--gold)">+</div><div style="font-size:9px;color:var(--gold);font-weight:600;text-transform:uppercase;letter-spacing:1px">Додати</div>';
+  g.appendChild(a);
+}
+
+function openLb(i){
+  openIdx=i; const p=photos[i];
+  const c=document.getElementById('lbc');
+  if(p.src) c.innerHTML=`<img class="lbox-img" src="${p.src}">`;
+  else c.innerHTML=`<div class="lbox-emoji">${p.e}</div>`;
+  document.getElementById('lbd').textContent=p.d;
+  document.getElementById('lbox').classList.add('open');
+}
+function closeLb(){document.getElementById('lbox').classList.remove('open');openIdx=-1;}
+function delPhoto(){
+  if(openIdx>=0){photos.splice(openIdx,1);renderPhotos();closeLb();toast('📸 Фото видалено');}
+}
+
+function upPh(inp){
+  const f=inp.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    const now=new Date();
+    const d=`${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}`;
+    photos.unshift({src:e.target.result,d});
+    renderPhotos(); toast('📸 Фото додано! +50 XP');
+  };
+  r.readAsDataURL(f); inp.value='';
+}
+
+function upAv(inp){
+  const f=inp.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    document.getElementById('pav').innerHTML=`<img src="${e.target.result}">`;
+    const ra=document.getElementById('rankAv');
+    if(ra) ra.innerHTML=`<img src="${e.target.result}">`;
+    toast('✅ Аватар оновлено');
+  };
+  r.readAsDataURL(f); inp.value='';
+}
+
+function upCmp(inp){
+  const f=inp.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    document.getElementById('cmpAfter').innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;
+    toast('✅ Фото «Після» оновлено');
+  };
+  r.readAsDataURL(f); inp.value='';
+}
+
+// ─── TITLES ───
+function setTitle(el, t){
+  document.querySelectorAll('.tc').forEach(c=>{
+    c.classList.remove('active-t');
+    const b=c.querySelector('.tc-badge');
+    if(b&&(b.classList.contains('tc-eq')||b.classList.contains('tc-buy'))){
+      b.className='tc-badge tc-buy'; b.textContent='Одягнути';
+    }
+  });
+  el.classList.add('active-t');
+  const b=el.querySelector('.tc-badge');
+  if(b){b.className='tc-badge tc-eq';b.textContent='Одягнутий';}
+  document.getElementById('activeTitle').textContent=t;
+  toast('👑 Титул одягнуто: '+t);
+  setTimeout(()=>go('profile'),600);
+}
+
+// ─── SHOP ───
+function switchShopTab(el, tab){
+  document.querySelectorAll('#shop-tabs .stab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['avatars','frames','backgrounds','boosts'].forEach(t=>{
+    const el2=document.getElementById('shop-'+t);
+    if(el2) el2.style.display = t===tab ? (t==='boosts'?'flex':'block') : 'none';
+    // boosts special
+    if(t==='boosts' && t===tab){
+      el2.style.flexDirection='column';
+      el2.style.padding='0 20px 20px';
+    }
+  });
+}
+
+function buyItem(card,price){
+  card.classList.add('owned');
+  const price_el = card.querySelector('.sc-price');
+  price_el.innerHTML=`<span class="sc-own">✓ Маєш</span>`;
+  toast(`🛒 Куплено за 🪙 ${price}`);
+}
+
+function buyBoost(btn,price){
+  btn.textContent='✓ Куплено';
+  btn.style.background='rgba(74,222,128,.2)';
+  btn.style.color='var(--green)';
+  btn.style.border='1px solid rgba(74,222,128,.3)';
+  btn.onclick=null;
+  toast(`⚡ Буст активовано! -🪙 ${price}`);
+}
+
+// ─── WORKOUT TABS ───
+function switchWTab(el, tab){
+  ['programs','my','builder'].forEach(t=>{
+    document.getElementById('wtab-'+t).style.display = t===tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('#workout-tabs .stab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  else {
+    // find by tab name
+    document.querySelectorAll('#workout-tabs .stab').forEach(t=>{
+      if(t.getAttribute('onclick')&&t.getAttribute('onclick').includes("'"+tab+"'")) t.classList.add('active');
+    });
   }
+}
+
+// ─── PROGRAM FILTER ───
+function filterPrograms(el, type){
+  document.querySelectorAll('#wtab-programs .rfbtn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('#programs-grid .shopcard').forEach(c=>{
+    const t=c.getAttribute('data-type');
+    c.style.display = (type==='all'||t===type) ? 'block' : 'none';
+  });
+}
+
+// ─── EXERCISE BUILDER ───
+let exercises=[];
+function addExercise(){
+  const name=document.getElementById('ex-name').value.trim();
+  const sets=document.getElementById('ex-sets').value||'3';
+  const reps=document.getElementById('ex-reps').value||'10';
+  const weight=document.getElementById('ex-weight').value;
+  if(!name){toast('⚠️ Введи назву вправи');return;}
+  exercises.push({name,sets,reps,weight});
+  renderExercises();
+  ['ex-name','ex-sets','ex-reps','ex-weight'].forEach(id=>document.getElementById(id).value='');
+}
+function quickAdd(name,sets,reps,weight){
+  exercises.push({name,sets,reps,weight});
+  renderExercises();
+  toast(`+ ${name} додано`);
+}
+function removeExercise(i){exercises.splice(i,1);renderExercises();}
+function renderExercises(){
+  const list=document.getElementById('exercise-list');
+  document.getElementById('ex-count').textContent=exercises.length+' додано';
+  list.innerHTML=exercises.map((e,i)=>`
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px"><div style="width:30px;height:30px;background:rgba(245,200,66,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--gold);flex-shrink:0">${i+1}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600">${e.name}</div>
+        <div style="font-size:10px;color:var(--dim);margin-top:2px">${e.sets} підх × ${e.reps} повт${e.weight?' · '+e.weight+'кг':''}</div>
+      </div>
+      <button onclick="removeExercise(${i})" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:7px;padding:4px 9px;font-size:11px;cursor:pointer">✕</button>
+    </div>`).join('');
+}
+function saveWorkout(){
+  const name=document.getElementById('workout-name').value.trim()||'Моє тренування';
+  if(exercises.length===0){toast('⚠️ Додай хоча б одну вправу');return;}
+  const list=document.getElementById('my-programs-list');
+  const div=document.createElement('div');
+  div.className='card';
+  div.style.cssText='padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px';
+  div.innerHTML=`<div style="font-size:28px">⚡</div><div style="flex:1"><div style="font-size:13px;font-weight:700">${name}</div><div style="font-size:10px;color:var(--dim);margin-top:2px">${exercises.length} вправ</div></div><button onclick="go('program-detail')" style="background:var(--gold);color:#000;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer">▶</button>`;
+  list.prepend(div);
+  exercises=[]; renderExercises();
+  document.getElementById('workout-name').value='';
+  toast('✅ Тренування збережено!');
+  setTimeout(()=>switchWTab(null,'my'),500);
+}
+
+// ─── ACTIVE WORKOUT TRACKER ───
+let workoutTimerInterval=null;
+let workoutSeconds=0;
+let completedSets={};
+let completedExercises=0;
+
+function initActiveWorkout(){
+  workoutSeconds=0; completedSets={}; completedExercises=0;
+  clearInterval(workoutTimerInterval);
+  workoutTimerInterval=setInterval(()=>{
+    workoutSeconds++;
+    const m=Math.floor(workoutSeconds/60);
+    const s=workoutSeconds%60;
+    document.getElementById('workout-timer').textContent=
+      String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  },1000);
+
+  // Build set rows for exercise 1
+  const setsContainer = document.getElementById('sets-1');
+  setsContainer.innerHTML='';
+  for(let i=1;i<=4;i++){
+    setsContainer.innerHTML+=`
+      <div class="set-row">
+        <div class="set-num">${i}</div>
+        <input class="set-input" type="number" placeholder="кг" value="80" style="width:60px">
+        <input class="set-input" type="number" placeholder="повт" value="8" style="width:60px">
+        <div class="set-done" onclick="toggleSet(this,1)" title="Відмітити підхід">✓</div>
+      </div>`;
+  }
+  updateWorkoutProgress();
+}
+
+function toggleSet(el,exIdx){
+  el.classList.toggle('checked');
+  const exCard=document.getElementById('aex-'+exIdx);
+  const allSets=exCard.querySelectorAll('.set-done');
+  const doneSets=[...allSets].filter(s=>s.classList.contains('checked')).length;
+  const allDone=doneSets===allSets.length;
+
+  if(allDone && !completedSets[exIdx]){
+    completedSets[exIdx]=true;
+    completedExercises++;
+    exCard.style.borderColor='rgba(74,222,128,.5)';
+    exCard.querySelector('div').style.color='var(--green)';
+    // Unlock next exercise
+    const next=document.getElementById('aex-'+(exIdx+1));
+    if(next) next.style.opacity='1';
+    toast('✅ Вправу завершено! Далі: '+(exIdx<4?['Розводка','Французький жим','Відтискання на брусах'][exIdx-1]:'Тренування завершено'));
+    updateWorkoutProgress();
+  }
+}
+
+function updateWorkoutProgress(){
+  const pct=Math.round(completedExercises/4*100);
+  document.getElementById('workout-progress-bar').style.width=pct+'%';
+  document.getElementById('workout-progress-text').textContent=completedExercises+'/4 вправ';
+  const btn=document.getElementById('finish-btn');
+  if(completedExercises===4){
+    btn.style.opacity='1'; btn.style.pointerEvents='auto';
+  }
+}
+
+function finishWorkout(){clearInterval(workoutTimerInterval);
+  const m=Math.floor(workoutSeconds/60);
+  toast('🏁 Тренування завершено! +100 XP 🎉');
+  // Add to journal
+  const now=new Date();
+  const d=`Сьогодні · ${m} хв · +100 XP`;
+  const list=document.getElementById('journal-list');
+  const div=document.createElement('div');
+  div.className='card';
+  div.style.cssText='padding:14px;margin-bottom:8px;';
+  div.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+    <div><div style="font-size:13px;font-weight:700">🏋️ Спліт — День 1</div><div style="font-size:10px;color:var(--dim);margin-top:2px">${d}</div></div>
+    <div style="font-size:10px;color:var(--green);font-weight:600">✓ Виконано</div>
+  </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <span class="tag">Жим 80кг×4×8</span><span class="tag">Розводка 22кг</span><span class="tag">Фр. жим 30кг</span>
+  </div>`;
+  list.prepend(div);
+  setTimeout(()=>go('home'),1200);
+}
+
+// Trigger init when entering active workout
+document.getElementById('n-workout').addEventListener('click',()=>{});
+const origGo=go;
+window.go=function(name){
+  origGo(name);
+  if(name==='active-workout') initActiveWorkout();
+};
+
+// ─── INIT ───
+renderPhotos();
 </script>
 </body>
 </html>
