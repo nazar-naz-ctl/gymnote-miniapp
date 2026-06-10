@@ -1193,6 +1193,99 @@ window.go=function(name){
   if(name==='active-workout') initActiveWorkout();
 };
 
+// ─── API CONFIG ───
+const API = 'http://13.140.144.115:8001/api';
+const tg = window.Telegram?.WebApp;
+const tgUser = tg?.initDataUnsafe?.user;
+
+async function loadUserData() {
+  try {
+    const uid = tgUser?.id;
+    if (!uid) return;
+
+    const headers = { 'X-Telegram-User-Id': uid };
+
+    const [user, records, journal] = await Promise.all([
+      fetch(`${API}/user`, { headers }).then(r => r.json()),
+      fetch(`${API}/records`, { headers }).then(r => r.json()),
+      fetch(`${API}/journal`, { headers }).then(r => r.json()),
+    ]);
+
+    if (user) {
+      const name = (tgUser?.first_name  user?.name  'АТЛЕТ').toUpperCase();
+      document.getElementById('home-name').textContent = name;
+      document.getElementById('home-workouts').textContent = user.total_workouts ?? 0;
+      document.getElementById('home-streak').textContent = user.streak ?? 0;
+      document.getElementById('home-records').textContent = user.total_records ?? 0;
+      document.getElementById('home-coins').textContent = (user.gymcoin ?? 0).toLocaleString();
+    }
+
+    if (records?.length) {
+      const icons = ['🏆','💪','🦵','🔥','⚡'];
+      const container = document.querySelector('#home .ri')?.parentElement;
+      if (container) {
+        container.innerHTML = records.slice(0, 5).map((r, i) => `
+          <div class="ri">
+            <div class="ri-ic">${icons[i % icons.length]}</div>
+            <div class="ri-in">
+              <div class="ri-n">${r.exercise}</div>
+              <div class="ri-s">${r.date ?? ''}</div>
+            </div>
+            <div class="ri-v">${r.weight}кг</div>
+          </div>`).join('');
+      }
+    }
+
+    if (journal?.length) {
+      const jlist = document.getElementById('journal-list');
+      jlist.innerHTML = journal.slice(0, 10).map(j => `
+        <div class="card" style="padding:14px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+            <div>
+              <div style="font-size:13px;font-weight:700">💪 ${j.program_name ?? 'Тренування'}</div>
+              <div style="font-size:10px;color:var(--dim);margin-top:2px">${j.date ?? ''} · ${j.duration ?? 0} хв · +100 XP</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            ${(j.exercises ?? []).slice(0, 3).map(e => `<span class="tag">${e}</span>`).join('')}
+          </div>
+        </div>`).join('');
+    }
+
+  } catch(e) {
+    console.log('API error:', e);
+  }
+}
+
+if (tg) { tg.ready(); tg.expand(); }
+loadUserData();
+
+// ─── API CONFIG ───
+const API = "http://13.140.144.115:8001/api";
+const tg = window.Telegram?.WebApp;
+const tgUser = tg?.initDataUnsafe?.user;
+async function loadUserData() {
+  try {
+    const uid = tgUser?.id;
+    const headers = { "X-Telegram-User-Id": String(uid) };
+    const [user, records, journal] = await Promise.all([
+      fetch(API+"/user", {headers}).then(r=>r.json()),
+      fetch(API+"/records", {headers}).then(r=>r.json()),
+      fetch(API+"/journal", {headers}).then(r=>r.json()),
+    ]);
+    if (user) {
+      const name = (tgUser?.first_name  user?.name  "АТЛЕТ").toUpperCase();
+      document.getElementById("home-name").textContent = name;
+      document.getElementById("home-workouts").textContent = user.total_workouts ?? 0;
+      document.getElementById("home-streak").textContent = user.streak ?? 0;
+      document.getElementById("home-records").textContent = user.total_records ?? 0;
+      document.getElementById("home-coins").textContent = (user.gymcoin ?? 0).toLocaleString();
+    }
+  } catch(e) { console.log("API error:", e); }
+}
+if (tg) { tg.ready(); tg.expand(); }
+loadUserData();
+
 // ─── INIT ───
 renderPhotos();
 </script>
