@@ -455,12 +455,6 @@
     <div class="page-sub" id="history-sub">Завантаження...</div>
   </div>
 
-  <div class="stats-row" id="history-stats" style="display:none">
-    <div class="stat-box"><div class="stat-val" id="st-total">0</div><div class="stat-lbl">Тренувань</div></div>
-    <div class="stat-box"><div class="stat-val" id="st-week" style="color:#4ADE80">0</div><div class="stat-lbl">Цього тижня</div></div>
-    <div class="stat-box"><div class="stat-val" id="st-xp" style="color:#F5C842">0</div><div class="stat-lbl">XP зароблено</div></div>
-  </div>
-
   <div id="history-content">
     <div class="loader"><div class="spinner"></div><div class="loader-text">Завантаження журналу...</div></div>
   </div>
@@ -503,7 +497,7 @@
     <div class="section-label">Вправи</div>
     <div class="ex-list" id="detail-exercises"></div>
     <div style="padding:0 16px 20px">
-      <button class="btn-gold" id="detail-start-btn">▶ Почати тренування · +100 XP</button>
+      <button class="btn-gold" id="detail-start-btn">▶ Почати тренування</button>
     </div>
   </div>
 </div>
@@ -676,9 +670,8 @@ async function loadHistory() {
             <div class="we-header">
               <div>
                 <div class="we-name">${w.name || 'Тренування'}</div>
-                <div class="we-date">${w.duration ? w.duration + ' хв · ' : ''}+100 XP</div>
+                <div class="we-date">${w.duration ? w.duration + ' хв' : ''}</div>
               </div>
-              <div class="we-xp">+100</div>
             </div>
             <div class="we-tags">${tags}</div>
           </div>`;
@@ -699,7 +692,7 @@ async function loadHistory() {
 }
 
 function formatDate(dateStr) {
-  const d = new Date(dateStr);
+  const d = new Date(dateStr + 'T00:00:00');
   const today = new Date();
   const yesterday = new Date(); yesterday.setDate(today.getDate()-1);
   if (d.toDateString() === today.toDateString()) return 'Сьогодні';
