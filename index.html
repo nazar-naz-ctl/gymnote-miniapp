@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>GymNote</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Кожен екран — окремий <div>, показується/ховається через клас .active -->
+<main id="app">
+  <section id="screen-journal" class="screen active">
+    <div class="loading">Завантаження…</div>
+  </section>
+
+  <section id="screen-programs" class="screen">
+    <div class="loading">Завантаження…</div>
+  </section>
+
+  <section id="screen-builder" class="screen">
+    <div class="loading">Завантаження…</div>
+  </section>
+</main>
+
+<!-- Нижня навігація -->
+<nav id="bottom-nav">
+  <button class="nav-btn active" data-screen="journal">
+    <span class="nav-icon">📖</span>
+    <span class="nav-label">Журнал</span>
+  </button>
+  <button class="nav-btn" data-screen="programs">
+    <span class="nav-icon">🏋️</span>
+    <span class="nav-label">Програми</span>
+  </button>
+  <button class="nav-btn" data-screen="builder">
+    <span class="nav-icon">🛠️</span>
+    <span class="nav-label">Білдер</span>
+  </button>
+</nav>
+
+<script type="module">
+  import { initTelegramApp } from './js/auth.js';
+  import { loadJournalScreen } from './js/journal.js';
+  import { loadProgramsScreen } from './js/programs.js';
+  import { loadBuilderScreen } from './js/builder.js';
+
+  // Мапа: назва екрану → функція, яка його наповнює даними.
+  // Кожен екран довантажує свій вміст лише один раз, при першому відкритті.
+  const screenLoaders = {
+    journal: loadJournalScreen,
+    programs: loadProgramsScreen,
+    builder: loadBuilderScreen,
+  };
+  const loadedScreens = new Set();
+
+  function showScreen(name) {
+    document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+    document.getElementById(`screen-${name}`).classList.add('active');
+
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.screen === name);
+    });
+
+    // Довантажуємо вміст екрану лише при першому переході на нього
+    if (!loadedScreens.has(name)) {
+      loadedScreens.add(name);
+      screenLoaders[name]();
+    }
+  }
+
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => showScreen(btn.dataset.screen));
+  });
+
+  // Старт застосунку
+  initTelegramApp();
+  showScreen('journal'); // журнал відкривається першим — це головний екран
+</script>
+
+</body>
+</html>

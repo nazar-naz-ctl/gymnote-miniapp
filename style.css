@@ -1,0 +1,168 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap');
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+html, body {
+  height: 100%;
+  background: #0D0D14;
+  color: #EDEDF2;
+  font-family: 'DM Sans', sans-serif;
+  overscroll-behavior: none;
+}
+
+#app {
+  min-height: 100vh;
+  padding-bottom: 76px; /* місце під нижню навігацію, щоб контент не ховався за нею */
+}
+
+/* Екрани: тільки .active показується, решта — display:none */
+.screen {
+  display: none;
+  padding: 18px 20px;
+}
+.screen.active {
+  display: block;
+}
+
+.loading {
+  text-align: center;
+  color: #6B6B78;
+  font-size: 14px;
+  margin-top: 40px;
+}
+
+/* Заголовки в стилі Bebas Neue — те саме, що в іншій частині бота */
+h1, h2, .title {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.5px;
+  color: #F5C842;
+}
+
+/* Базова картка — використовується на всіх трьох екранах */
+.card {
+  background: #15151E;
+  border: 1px solid #232332;
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 14px;
+}
+
+/* Кнопка загального призначення (золота, головна дія) */
+.btn-primary {
+  background: #F5C842;
+  color: #0D0D14;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  width: 100%;
+  cursor: pointer;
+}
+.btn-primary:active {
+  transform: scale(0.97);
+}
+
+/* Нижня навігація */
+#bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 76px;
+  background: #0D0D14;
+  border-top: 1px solid #1E1E28;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding-bottom: env(safe-area-inset-bottom); /* під iPhone-нижню панель */
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  color: #6B6B78;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  cursor: pointer;
+  flex: 1;
+  padding: 8px 0;
+}
+
+.nav-icon {
+  font-size: 20px;
+}
+
+.nav-btn.active {
+  color: #F5C842;
+}
+
+/* ===================== Session Engine (журнал/тренування) ===================== */
+
+.session-topbar { padding: 0 0 10px; }
+.session-topbar-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.exit-link { color:#6B6B78; font-size:13px; font-weight:500; cursor:pointer; }
+
+.progress-track { height:6px; background:#1A1A24; border-radius:3px; overflow:hidden; }
+.progress-fill { height:100%; background:linear-gradient(90deg,#F5C842,#FFD766); border-radius:3px; width:0%; transition:width .5s ease; }
+.progress-meta { display:flex; justify-content:space-between; margin-top:6px; font-size:11px; color:#6B6B78; }
+
+.view { display:none; }
+.view.active { display:flex; flex-direction:column; animation: fadeIn .35s ease; }
+@keyframes fadeIn { from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+
+.ex-card { background:#15151E; border:1px solid #232332; border-radius:18px; padding:20px; }
+.ex-name { font-family:'Bebas Neue', sans-serif; font-size:26px; color:#EDEDF2; }
+.ex-sub { font-size:12px; color:#6B6B78; }
+
+.set-row { background:#0D0D14; border:1px solid #232332; border-radius:14px; padding:14px 16px; margin-top:14px; }
+.set-label { font-size:12px; color:#8B8B98; text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; display:flex; justify-content:space-between; }
+.set-plan { color:#F5C842; font-weight:700; }
+
+.inputs-row { display:flex; gap:10px; }
+.input-group { flex:1; }
+.input-group label { font-size:11px; color:#6B6B78; display:block; margin-bottom:4px; }
+.input-group input {
+  width:100%; background:#1A1A24; border:1px solid #2A2A38; color:#EDEDF2;
+  font-size:20px; font-weight:700; padding:10px 12px; border-radius:10px; text-align:center;
+}
+.input-group input:focus { outline:none; border-color:#F5C842; }
+
+.prev-note { font-size:12px; color:#6B6B78; margin-top:12px; text-align:center; }
+.prev-note b { color:#8B8B98; }
+
+.done-sets { display:flex; flex-direction:column; gap:8px; margin-top:14px; }
+.done-set-item { display:flex; justify-content:space-between; align-items:center; background:#0D0D14; border:1px solid #1E3B2A; border-radius:10px; padding:10px 14px; font-size:13px; }
+.done-set-item .num { color:#6B6B78; }
+.done-set-item .val { color:#7CD98B; font-weight:700; }
+
+.rest-view { align-items:center; justify-content:center; text-align:center; padding:30px 20px; }
+.rest-label { font-size:13px; color:#6B6B78; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; }
+.rest-ring { width:170px; height:170px; border-radius:50%; display:flex; align-items:center; justify-content:center; position:relative; margin:0 auto 26px; }
+.rest-ring svg { position:absolute; top:0; left:0; transform:rotate(-90deg); }
+.rest-time { font-family:'Bebas Neue', sans-serif; font-size:52px; color:#F5C842; }
+.rest-next { font-size:13px; color:#8B8B98; margin-bottom:24px; }
+.rest-next b { color:#EDEDF2; }
+.skip-btn { background:transparent; border:1px solid #2A2A38; color:#8B8B98; padding:12px 28px; border-radius:12px; font-family:'DM Sans', sans-serif; font-size:14px; cursor:pointer; }
+
+.finish-view { align-items:center; justify-content:center; text-align:center; padding-top:40px; }
+.trophy { font-size:52px; margin-bottom:6px; }
+.finish-title { font-family:'Bebas Neue', sans-serif; font-size:28px; color:#F5C842; margin-bottom:26px; }
+.finish-time { font-family:'Bebas Neue', sans-serif; font-size:44px; color:#EDEDF2; margin-bottom:26px; }
+.finish-stats { display:flex; gap:12px; width:100%; margin-bottom:16px; }
+.stat-box { flex:1; background:#15151E; border:1px solid #232332; border-radius:14px; padding:14px 10px; }
+.stat-box .label { font-size:11px; color:#6B6B78; margin-bottom:4px; }
+.stat-box .value { font-family:'Bebas Neue', sans-serif; font-size:22px; color:#EDEDF2; }
+
+.pr-box {
+  width:100%; background:linear-gradient(135deg,#2A2410,#15151E); border:1px solid #4A3F1A;
+  border-radius:14px; padding:14px 16px; display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;
+}
+.pr-box .pr-label { font-size:12px; color:#F5C842; text-transform:uppercase; letter-spacing:.5px; }
+.pr-box .pr-ex { font-size:14px; color:#EDEDF2; margin-top:2px; }
+.pr-box .pr-delta { font-family:'Bebas Neue', sans-serif; font-size:22px; color:#7CD98B; }
